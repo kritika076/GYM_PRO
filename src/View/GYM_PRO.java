@@ -48,13 +48,25 @@ public class GYM_PRO extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         body = new javax.swing.JPanel();
         admin = new javax.swing.JPanel();
-        admindashboard = new javax.swing.JPanel();
+        adminDashboard = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         memberdatabase = new javax.swing.JTable();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
         jLabel9 = new javax.swing.JLabel();
+        addMembers = new javax.swing.JPanel();
+        CancelBtn = new javax.swing.JButton();
+        age = new javax.swing.JLabel();
+        membership = new javax.swing.JLabel();
+        id = new javax.swing.JLabel();
+        name = new javax.swing.JLabel();
+        namefileld = new javax.swing.JTextField();
+        agefield = new javax.swing.JTextField();
+        membershipfield = new javax.swing.JTextField();
+        namefield = new javax.swing.JTextField();
+        clearbtn = new javax.swing.JButton();
+        addbtn = new javax.swing.JButton();
 
         Login.setBackground(new java.awt.Color(163, 73, 5));
         Login.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -137,14 +149,15 @@ public class GYM_PRO extends javax.swing.JFrame {
         jLabel1.setText("GYM PRO");
         Login.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 30, 240, 80));
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
         navbar.setBackground(new java.awt.Color(163, 73, 5));
 
         jLabel5.setIcon(new javax.swing.ImageIcon("C:\\ISLINGTON\\second year\\dsa\\image\\logo.png")); // NOI18N
 
+        jButton2.setBackground(new java.awt.Color(163, 73, 5));
         jButton2.setFont(new java.awt.Font("Segoe UI Semibold", 3, 18)); // NOI18N
+        jButton2.setForeground(new java.awt.Color(255, 255, 255));
         jButton2.setText("LOG OUT");
+        jButton2.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 0, 0), 2, true));
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 3, 24)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(255, 255, 255));
@@ -171,8 +184,8 @@ public class GYM_PRO extends javax.swing.JFrame {
                 .addComponent(jLabel8)
                 .addGap(79, 79, 79)
                 .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton2)
+                .addGap(18, 18, 18)
+                .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 93, Short.MAX_VALUE)
                 .addGap(30, 30, 30))
         );
         navbarLayout.setVerticalGroup(
@@ -194,7 +207,7 @@ public class GYM_PRO extends javax.swing.JFrame {
 
         admin.setBackground(new java.awt.Color(163, 73, 5));
 
-        admindashboard.setBackground(new java.awt.Color(163, 73, 5));
+        adminDashboard.setBackground(new java.awt.Color(163, 73, 5));
 
         memberdatabase.setBackground(new java.awt.Color(163, 73, 5));
         memberdatabase.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 2));
@@ -247,32 +260,32 @@ public class GYM_PRO extends javax.swing.JFrame {
         jLabel9.setForeground(new java.awt.Color(255, 255, 255));
         jLabel9.setText("To add new members ,click the button below");
 
-        javax.swing.GroupLayout admindashboardLayout = new javax.swing.GroupLayout(admindashboard);
-        admindashboard.setLayout(admindashboardLayout);
-        admindashboardLayout.setHorizontalGroup(
-            admindashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, admindashboardLayout.createSequentialGroup()
+        javax.swing.GroupLayout adminDashboardLayout = new javax.swing.GroupLayout(adminDashboard);
+        adminDashboard.setLayout(adminDashboardLayout);
+        adminDashboardLayout.setHorizontalGroup(
+            adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, adminDashboardLayout.createSequentialGroup()
                 .addContainerGap(25, Short.MAX_VALUE)
-                .addGroup(admindashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(admindashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addGroup(admindashboardLayout.createSequentialGroup()
+                    .addGroup(adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(adminDashboardLayout.createSequentialGroup()
                             .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, admindashboardLayout.createSequentialGroup()
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, adminDashboardLayout.createSequentialGroup()
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 827, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(18, 18, 18)))
                     .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
-        admindashboardLayout.setVerticalGroup(
-            admindashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(admindashboardLayout.createSequentialGroup()
+        adminDashboardLayout.setVerticalGroup(
+            adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(adminDashboardLayout.createSequentialGroup()
                 .addGap(50, 50, 50)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(26, 26, 26)
-                .addGroup(admindashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
@@ -290,7 +303,7 @@ public class GYM_PRO extends javax.swing.JFrame {
             .addGroup(adminLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(adminLayout.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(admindashboard, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(adminDashboard, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         adminLayout.setVerticalGroup(
@@ -299,7 +312,7 @@ public class GYM_PRO extends javax.swing.JFrame {
             .addGroup(adminLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(adminLayout.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(admindashboard, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(adminDashboard, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
 
@@ -335,15 +348,128 @@ public class GYM_PRO extends javax.swing.JFrame {
             .addComponent(navbar, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        addMembers.setBackground(new java.awt.Color(163, 73, 5));
+        addMembers.setPreferredSize(new java.awt.Dimension(882, 501));
+
+        CancelBtn.setBackground(new java.awt.Color(163, 73, 5));
+        CancelBtn.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        CancelBtn.setForeground(new java.awt.Color(255, 255, 204));
+        CancelBtn.setText("Cancel");
+        CancelBtn.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 0, 0), 2, true));
+
+        age.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        age.setForeground(new java.awt.Color(255, 255, 255));
+        age.setText("Age");
+
+        membership.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        membership.setForeground(new java.awt.Color(255, 255, 255));
+        membership.setText("MembershipType");
+
+        id.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        id.setForeground(new java.awt.Color(255, 255, 255));
+        id.setText("ID");
+
+        name.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        name.setForeground(new java.awt.Color(255, 255, 255));
+        name.setText("Name");
+
+        namefileld.setBackground(new java.awt.Color(163, 73, 5));
+        namefileld.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+
+        agefield.setBackground(new java.awt.Color(163, 73, 5));
+        agefield.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+
+        membershipfield.setBackground(new java.awt.Color(163, 73, 5));
+        membershipfield.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+
+        namefield.setBackground(new java.awt.Color(163, 73, 5));
+        namefield.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+
+        clearbtn.setBackground(new java.awt.Color(163, 73, 5));
+        clearbtn.setFont(new java.awt.Font("Arial Rounded MT Bold", 1, 24)); // NOI18N
+        clearbtn.setForeground(new java.awt.Color(255, 255, 255));
+        clearbtn.setText("CLEAR");
+        clearbtn.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 0, 0), 2, true));
+
+        addbtn.setBackground(new java.awt.Color(163, 73, 5));
+        addbtn.setFont(new java.awt.Font("Arial Rounded MT Bold", 1, 24)); // NOI18N
+        addbtn.setForeground(new java.awt.Color(255, 255, 255));
+        addbtn.setText("ADD");
+        addbtn.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+
+        javax.swing.GroupLayout addMembersLayout = new javax.swing.GroupLayout(addMembers);
+        addMembers.setLayout(addMembersLayout);
+        addMembersLayout.setHorizontalGroup(
+            addMembersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(addMembersLayout.createSequentialGroup()
+                .addGap(16, 16, 16)
+                .addComponent(CancelBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(addMembersLayout.createSequentialGroup()
+                .addGap(200, 200, 200)
+                .addComponent(id, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(96, 96, 96)
+                .addComponent(name, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(addMembersLayout.createSequentialGroup()
+                .addGap(190, 190, 190)
+                .addComponent(namefield, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(22, 22, 22)
+                .addComponent(namefileld, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(addMembersLayout.createSequentialGroup()
+                .addGap(190, 190, 190)
+                .addComponent(age, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(96, 96, 96)
+                .addComponent(membership, javax.swing.GroupLayout.PREFERRED_SIZE, 203, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(addMembersLayout.createSequentialGroup()
+                .addGap(190, 190, 190)
+                .addComponent(agefield, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(22, 22, 22)
+                .addComponent(membershipfield, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(addMembersLayout.createSequentialGroup()
+                .addGap(190, 190, 190)
+                .addComponent(clearbtn, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(20, 20, 20)
+                .addComponent(addbtn, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        addMembersLayout.setVerticalGroup(
+            addMembersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(addMembersLayout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addComponent(CancelBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(26, 26, 26)
+                .addGroup(addMembersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(id, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(name, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(23, 23, 23)
+                .addGroup(addMembersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(namefield, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(namefileld, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(27, 27, 27)
+                .addGroup(addMembersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(age, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(membership, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(13, 13, 13)
+                .addGroup(addMembersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(agefield, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(membershipfield, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(57, 57, 57)
+                .addGroup(addMembersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(clearbtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(addbtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(addMembers, javax.swing.GroupLayout.DEFAULT_SIZE, 939, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(main, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 148, Short.MAX_VALUE)
+                .addComponent(addMembers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
@@ -383,12 +509,19 @@ public class GYM_PRO extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton CancelBtn;
     private javax.swing.JPanel Login;
     private javax.swing.JPanel Sub_login;
+    private javax.swing.JPanel addMembers;
+    private javax.swing.JButton addbtn;
     private javax.swing.JPanel admin;
-    private javax.swing.JPanel admindashboard;
+    private javax.swing.JPanel adminDashboard;
+    private javax.swing.JLabel age;
+    private javax.swing.JTextField agefield;
     private javax.swing.JLabel bg_pic;
     private javax.swing.JPanel body;
+    private javax.swing.JButton clearbtn;
+    private javax.swing.JLabel id;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
@@ -409,6 +542,11 @@ public class GYM_PRO extends javax.swing.JFrame {
     private javax.swing.JLabel logo;
     private javax.swing.JPanel main;
     private javax.swing.JTable memberdatabase;
+    private javax.swing.JLabel membership;
+    private javax.swing.JTextField membershipfield;
+    private javax.swing.JLabel name;
+    private javax.swing.JTextField namefield;
+    private javax.swing.JTextField namefileld;
     private javax.swing.JPanel navbar;
     // End of variables declaration//GEN-END:variables
 }
