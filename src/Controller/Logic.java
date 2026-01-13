@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  *
- * @author pande
+ * @author pandey
  */
 public class Logic {
    private List<Member> memberList;
@@ -21,11 +21,11 @@ public class Logic {
     }
 private void initializeData() {
         // FIX 3: Directly add to list or define registerMember here
-        memberList.add(new Member("Mem001", "Alice Johnson", 28, "Regular", "New York", "Female"));
-        memberList.add(new Member("Mem002", "Bob Smith", 35, "Regular", "Chicago", "Male"));
-        memberList.add(new Member("Mem003", "Charlie Davis", 22, "Premium", "Los Angeles", "Others"));
-        memberList.add(new Member("Mem004", "Diana Prince", 30, "Regular", "Miami", "Female"));
-        memberList.add(new Member("Mem005", "Ethan Hunt", 40, "Premium", "London", "Male"));
+        memberList.add(new Member("Mem001", "Prashna Regmi", 28, "Regular", "Dhapakhel", "Female"));
+        memberList.add(new Member("Mem002", "Deshan Shakya", 35, "Regular", "Patan", "Male"));
+        memberList.add(new Member("Mem003", "Kritika Pandey", 22, "Premium", "Samakhushi", "Others"));
+        memberList.add(new Member("Mem004", "Ram Bahadur", 30, "Regular", "KamalPokhari", "Female"));
+        memberList.add(new Member("Mem005", "laxman Pun", 40, "Premium", "Thamel", "Male"));
     }
 
     // Getter so the View (GUI) can see the data
