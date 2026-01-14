@@ -19,6 +19,7 @@ public class Member {
     private String gender;
     private int totalAttendance;
     private String lastCheckIn;
+    
 
     /**
      * This is a constructor for the class Member Initializes a new instance of
@@ -43,6 +44,7 @@ public class Member {
         this.membershipType = membershipType;
         this.totalAttendance = totalAttendance;
         this.lastCheckIn = lastCheckIn;
+        
     }
 
     /**
@@ -150,5 +152,6 @@ public class Member {
     public void setLastCheckIn(String lastCheckIn) {
         this.lastCheckIn = lastCheckIn;
     }
+   
 
 }

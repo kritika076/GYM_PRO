@@ -10,7 +10,6 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import Controller.Logic;
-import javax.swing.table.TableRowSorter;
 
 /**
  *
@@ -45,20 +44,18 @@ public class GYM_PRO extends javax.swing.JFrame {
         UserLayout();
 
         logicController = new Logic();  // creates data
-        initializeData();
+        initializeData(logicController.getMemberList());
+
     }
 
     // Initializing multiple data for the table and arraylist 
-    private void initializeData() {
-        // 1. Clear the table UI first so you don't get duplicates
+    private void initializeData(List<Member> memberList) {
+        // Clear the table UI first so you don't get duplicates
         DefaultTableModel table = (DefaultTableModel) memberDatabase.getModel();
         table.setRowCount(0);
 
-        // 2. Get the list that was populated in the Logic constructor
-        List<Member> members = logicController.getMemberList();
-
-        // 3. Loop through those 5 members and add them to the JTable
-        for (Member m : members) {
+        //  Loop through those 5 members and add them to the JTable
+        for (Member m : memberList) {
             // We call a version of registerMember that ONLY updates the UI
             addRowToTable(m);
         }
@@ -247,22 +244,6 @@ public class GYM_PRO extends javax.swing.JFrame {
         });
     }
 
-    private void refreshTable(List<Member> members) {
-        DefaultTableModel model = (DefaultTableModel) memberDatabase.getModel();
-        model.setRowCount(0); // clear table
-
-        for (Member m : members) {
-            addRowToTable(m);
-        }
-    }
-
-    private void registerNewMember(Member member) {
-        // 1. Add to the Logic list
-        logicController.getMemberList().add(member);
-        // 2. Add to the JTable UI
-        addRowToTable(member);
-    }
-
     private void markAttendanceLogic() {
         if (loggedInMember != null) {
             // 1. Calculate New Data
@@ -291,7 +272,7 @@ public class GYM_PRO extends javax.swing.JFrame {
             }
 
             JOptionPane.showMessageDialog(this, "Attendance Marked for " + loggedInMember.getName());
-            initializeData();
+            initializeData(logicController.getMemberList());
 
         }
     }
@@ -332,7 +313,7 @@ public class GYM_PRO extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Attendance reverted for " + loggedInMember.getName());
 
                 // Refresh admin table so the count decreases there too
-                initializeData();
+                initializeData(logicController.getMemberList());
             }
         }
     }
@@ -404,19 +385,6 @@ public class GYM_PRO extends javax.swing.JFrame {
         checkInFieldUp = new javax.swing.JTextField();
         updateAttendanceError = new javax.swing.JLabel();
         updateCheckInError = new javax.swing.JLabel();
-        Login = new javax.swing.JPanel();
-        bg_pic = new javax.swing.JLabel();
-        Sub_login = new javax.swing.JPanel();
-        loginname = new javax.swing.JLabel();
-        loginnamefield = new javax.swing.JTextField();
-        password = new javax.swing.JLabel();
-        passwordField = new javax.swing.JPasswordField();
-        login = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
-        nameError = new javax.swing.JLabel();
-        passwordError = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
-        logo = new javax.swing.JLabel();
         userPanel = new javax.swing.JPanel();
         userNav = new javax.swing.JPanel();
         userLogo = new javax.swing.JLabel();
@@ -531,6 +499,20 @@ public class GYM_PRO extends javax.swing.JFrame {
         sortCombo = new javax.swing.JComboBox<>();
         Sort = new javax.swing.JButton();
         history = new javax.swing.JLabel();
+        Login = new javax.swing.JPanel();
+        bg_pic = new javax.swing.JLabel();
+        Sub_login = new javax.swing.JPanel();
+        loginname = new javax.swing.JLabel();
+        loginNameField = new javax.swing.JTextField();
+        password = new javax.swing.JLabel();
+        passwordField = new javax.swing.JPasswordField();
+        login = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
+        nameError = new javax.swing.JLabel();
+        passwordError = new javax.swing.JLabel();
+        loginError = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        logo = new javax.swing.JLabel();
 
         addMembers.setBackground(new java.awt.Color(163, 73, 5));
         addMembers.setPreferredSize(new java.awt.Dimension(882, 501));
@@ -947,103 +929,6 @@ public class GYM_PRO extends javax.swing.JFrame {
         updateAttendanceError.setBounds(220, 420, 220, 10);
         updateMembers.add(updateCheckInError);
         updateCheckInError.setBounds(460, 420, 220, 10);
-
-        Login.setBackground(new java.awt.Color(163, 73, 5));
-        Login.setMaximumSize(new java.awt.Dimension(900, 670));
-        Login.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        bg_pic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/loginPic.jpg"))); // NOI18N
-        Login.add(bg_pic, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 20, -1, 650));
-
-        Sub_login.setBackground(new java.awt.Color(255, 255, 255));
-
-        loginname.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        loginname.setText("Name");
-
-        loginnamefield.setBackground(new java.awt.Color(239, 239, 239));
-
-        password.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        password.setText("Password");
-
-        passwordField.setBackground(new java.awt.Color(239, 239, 239));
-        passwordField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                passwordFieldActionPerformed(evt);
-            }
-        });
-
-        login.setBackground(new java.awt.Color(96, 91, 80));
-        login.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        login.setForeground(new java.awt.Color(255, 255, 255));
-        login.setText("Login");
-        login.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                loginMouseClicked(evt);
-            }
-        });
-
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(96, 91, 80));
-        jLabel4.setText("Secured login portal ");
-
-        nameError.setForeground(new java.awt.Color(204, 0, 0));
-
-        passwordError.setForeground(new java.awt.Color(204, 0, 0));
-
-        javax.swing.GroupLayout Sub_loginLayout = new javax.swing.GroupLayout(Sub_login);
-        Sub_login.setLayout(Sub_loginLayout);
-        Sub_loginLayout.setHorizontalGroup(
-            Sub_loginLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(Sub_loginLayout.createSequentialGroup()
-                .addGroup(Sub_loginLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(Sub_loginLayout.createSequentialGroup()
-                        .addGap(79, 79, 79)
-                        .addComponent(login, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(Sub_loginLayout.createSequentialGroup()
-                        .addGap(96, 96, 96)
-                        .addComponent(jLabel4))
-                    .addGroup(Sub_loginLayout.createSequentialGroup()
-                        .addGap(30, 30, 30)
-                        .addGroup(Sub_loginLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(password)
-                            .addComponent(loginname, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(loginnamefield, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
-                            .addComponent(passwordField)
-                            .addComponent(nameError, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(passwordError, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addContainerGap(41, Short.MAX_VALUE))
-        );
-        Sub_loginLayout.setVerticalGroup(
-            Sub_loginLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(Sub_loginLayout.createSequentialGroup()
-                .addGap(19, 19, 19)
-                .addComponent(jLabel4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
-                .addComponent(loginname)
-                .addGap(18, 18, 18)
-                .addComponent(loginnamefield, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(1, 1, 1)
-                .addComponent(nameError, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(password)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(passwordError, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(login)
-                .addGap(32, 32, 32))
-        );
-
-        Login.add(Sub_login, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 170, -1, -1));
-
-        jLabel1.setFont(new java.awt.Font("Lucida Bright", 1, 48)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("GYM PRO");
-        Login.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 30, 240, 80));
-
-        logo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/logo.png"))); // NOI18N
-        Login.add(logo, new org.netbeans.lib.awtextra.AbsoluteConstraints(-30, 10, 160, 100));
 
         userPanel.setBackground(new java.awt.Color(163, 73, 5));
         userPanel.setPreferredSize(new java.awt.Dimension(920, 660));
@@ -1983,11 +1868,6 @@ public class GYM_PRO extends javax.swing.JFrame {
                     .addComponent(profileM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setMaximumSize(new java.awt.Dimension(930, 660));
-        setMinimumSize(new java.awt.Dimension(930, 660));
-        setResizable(false);
-
         main.setBackground(new java.awt.Color(163, 73, 5));
         main.setPreferredSize(new java.awt.Dimension(920, 660));
 
@@ -2284,6 +2164,111 @@ public class GYM_PRO extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMaximumSize(new java.awt.Dimension(930, 660));
+        setMinimumSize(new java.awt.Dimension(930, 660));
+        setResizable(false);
+
+        Login.setBackground(new java.awt.Color(163, 73, 5));
+        Login.setMaximumSize(new java.awt.Dimension(900, 670));
+        Login.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        bg_pic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/loginPic.jpg"))); // NOI18N
+        Login.add(bg_pic, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 20, -1, 650));
+
+        Sub_login.setBackground(new java.awt.Color(255, 255, 255));
+
+        loginname.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        loginname.setText("Name");
+
+        loginNameField.setBackground(new java.awt.Color(239, 239, 239));
+
+        password.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        password.setText("Password");
+
+        passwordField.setBackground(new java.awt.Color(239, 239, 239));
+        passwordField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                passwordFieldActionPerformed(evt);
+            }
+        });
+
+        login.setBackground(new java.awt.Color(96, 91, 80));
+        login.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        login.setForeground(new java.awt.Color(255, 255, 255));
+        login.setText("Login");
+        login.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                loginMouseClicked(evt);
+            }
+        });
+
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(96, 91, 80));
+        jLabel4.setText("Secured login portal ");
+
+        nameError.setForeground(new java.awt.Color(204, 0, 0));
+
+        passwordError.setForeground(new java.awt.Color(204, 0, 0));
+
+        javax.swing.GroupLayout Sub_loginLayout = new javax.swing.GroupLayout(Sub_login);
+        Sub_login.setLayout(Sub_loginLayout);
+        Sub_loginLayout.setHorizontalGroup(
+            Sub_loginLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Sub_loginLayout.createSequentialGroup()
+                .addGroup(Sub_loginLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(Sub_loginLayout.createSequentialGroup()
+                        .addGap(96, 96, 96)
+                        .addComponent(jLabel4))
+                    .addGroup(Sub_loginLayout.createSequentialGroup()
+                        .addGap(74, 74, 74)
+                        .addComponent(login, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(Sub_loginLayout.createSequentialGroup()
+                        .addGap(30, 30, 30)
+                        .addGroup(Sub_loginLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(password)
+                            .addComponent(loginname, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(loginNameField, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
+                            .addComponent(passwordField)
+                            .addComponent(nameError, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(loginError, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(passwordError, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                .addContainerGap(29, Short.MAX_VALUE))
+        );
+        Sub_loginLayout.setVerticalGroup(
+            Sub_loginLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Sub_loginLayout.createSequentialGroup()
+                .addGap(19, 19, 19)
+                .addComponent(jLabel4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
+                .addComponent(loginname)
+                .addGap(18, 18, 18)
+                .addComponent(loginNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(1, 1, 1)
+                .addComponent(nameError, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(password)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(passwordError, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(loginError, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(4, 4, 4)
+                .addComponent(login)
+                .addGap(19, 19, 19))
+        );
+
+        Login.add(Sub_login, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 170, -1, -1));
+
+        jLabel1.setFont(new java.awt.Font("Lucida Bright", 1, 48)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText("GYM PRO");
+        Login.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 30, 240, 80));
+
+        logo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/logo.png"))); // NOI18N
+        Login.add(logo, new org.netbeans.lib.awtextra.AbsoluteConstraints(-30, 10, 160, 100));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -2292,16 +2277,16 @@ public class GYM_PRO extends javax.swing.JFrame {
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                     .addGap(0, 0, Short.MAX_VALUE)
-                    .addComponent(main, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(Login, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGap(0, 0, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 660, Short.MAX_VALUE)
+            .addGap(0, 670, Short.MAX_VALUE)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                     .addGap(0, 0, Short.MAX_VALUE)
-                    .addComponent(main, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(Login, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGap(0, 0, Short.MAX_VALUE)))
         );
 
@@ -2363,82 +2348,107 @@ public class GYM_PRO extends javax.swing.JFrame {
      * @param evt the mouse event triggered after clicking on login label
      */
     private void loginMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_loginMouseClicked
-        // extracting username and password from the fields
-        String username = loginnamefield.getText();
-        String password = new String(passwordField.getPassword());
 
-        //Setting the errors to empty
+        // Clear previous error messages
+        loginError.setText("");
         nameError.setText("");
         passwordError.setText("");
-        // check if username is empty
-        if (username.isEmpty()) {
+
+// Extract username and password
+        String username = loginNameField.getText().trim();
+        String password = new String(passwordField.getPassword()).trim();
+
+// Check for empty fields first
+        if (username == null || username.isEmpty()) {
             nameError.setText("Username Required");
         }
-
-// check if password is empty
-        if (password.isEmpty()) {
+        if (password == null || password.isEmpty()) {
             passwordError.setText("Password Required");
         }
 
-// validate username and password only if both are filled
+// Only proceed if both username and password are filled
         if (!username.isEmpty() && !password.isEmpty()) {
 
-            // admin login
-            if (username.equals("admin") && password.equals("admin")) {
-                JOptionPane.showMessageDialog(this, "Login Successful for admin!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                loginnamefield.setText("");
-                passwordField.setText("");
-                changingMainPanels("MainPanel");
-
-                // user login
-            } else if (username.equals("user") && password.equals("user")) {
-                JOptionPane.showMessageDialog(this, "Login Successful for user!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                loginnamefield.setText("");
-                passwordField.setText("");
-                changingMainPanels("UserPanel");// user panel
-
-            } else if (username.equals("prashna") && password.equals("prashna")) {
-                JOptionPane.showMessageDialog(this, "Login Successful for Prashna!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                // 1. Point to Prashna's data index 0
-                loggedInMember = logicController.getMemberList().get(0);
-
-                // 2. Load HER data into HER specific labels
-                if (loggedInMember != null) {
-                    attendanceValue.setText(String.valueOf(loggedInMember.getTotalAttendance()));
-                    checkedValue.setText(loggedInMember.getLastCheckIn());
-                }
-                loginnamefield.setText("");
-                passwordField.setText("");
-                changingMainPanels("MemberPagePanel");    // open member page
-
-            } else if (username.equals("deshan") && password.equals("deshan")) {
-                JOptionPane.showMessageDialog(this, "Login Successful for deshan!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                // ( Deshan is at index 1 in your list)
-                loggedInMember = logicController.getMemberList().get(1);
-
-                // 2. Set the labels for Deshan's specific page before opening it
-                if (loggedInMember != null) {
-                    attendanceValue1.setText(String.valueOf(loggedInMember.getTotalAttendance()));
-                    checkedValue1.setText(loggedInMember.getLastCheckIn());
-                }
-                loginnamefield.setText("");
-                passwordField.setText("");
-                changingMainPanels("MemberPage2Panel");    // open member page
-            } else {
-                // username incorrect
-                if (!username.equals("admin") && !username.equals("user") && !username.equals("prashna") && !username.equals("deshan")) {
-                    nameError.setText("Username not found");
-                }
-
-                // password incorrect
-                if (username.equals("admin") && !password.equals("admin")
-                        || (username.equals("user") && !password.equals("user"))
-                        || (username.equals("prashna") && !password.equals("prashna"))
-                        || (username.equals("deshan") && !password.equals("deshan"))) {
+            // Admin login
+            if (username.equals("admin")) {
+                if (password.equals("admin")) {
+                    JOptionPane.showMessageDialog(this, "Login Successful for admin!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    loginNameField.setText("");
+                    passwordField.setText("");
+                    changingMainPanels("MainPanel");
+                    return;
+                } else {
                     passwordError.setText("Password Incorrect");
+                    return;
+                }
+            } else if (username.equals("user")) {
+                // User login
+                if (password.equals("user")) {
+                    JOptionPane.showMessageDialog(this, "Login Successful for user!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    loginNameField.setText("");
+                    passwordField.setText("");
+                    changingMainPanels("UserPanel");
+                    return;
+                } else {
+                    passwordError.setText("Password Incorrect");
+                    return;
                 }
             }
+
+            // Prashna login
+            if (username.equalsIgnoreCase("prashna")) {
+                Member prashna = logicController.getMemberList().stream()
+                        .filter(m -> m.getName().equalsIgnoreCase("Prashna Regmi"))
+                        .findFirst().orElse(null);
+                if (prashna == null) {
+                    loginError.setText("Member Prashna has been deleted.");
+                    return;
+                }
+                if (!password.equalsIgnoreCase("prashna")) {
+                    passwordError.setText("Password Incorrect");
+                    return;
+                }
+                JOptionPane.showMessageDialog(this, "Login Successful for prashna!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+                // Password correct, load member panel
+                loggedInMember = prashna;
+                attendanceValue.setText(String.valueOf(prashna.getTotalAttendance()));
+                checkedValue.setText(prashna.getLastCheckIn());
+                loginNameField.setText("");
+                passwordField.setText("");
+                changingMainPanels("MemberPagePanel");
+                return;
+            }
+
+            // Deshan login
+            if (username.equalsIgnoreCase("deshan")) {
+                Member deshan = logicController.getMemberList().stream()
+                        .filter(m -> m.getName().equalsIgnoreCase("Deshan Shakya"))
+                        .findFirst().orElse(null);
+                if (deshan == null) {
+                    loginError.setText("Member Deshan has been deleted.");
+                    return;
+                }
+                if (!password.equalsIgnoreCase("deshan")) {
+                    passwordError.setText("Password Incorrect");
+                    return;
+                }
+                JOptionPane.showMessageDialog(this, "Login Successful for deshan!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+                // Password correct, load member panel
+                loggedInMember = deshan;
+                attendanceValue1.setText(String.valueOf(deshan.getTotalAttendance()));
+                checkedValue1.setText(deshan.getLastCheckIn());
+                loginNameField.setText("");
+                passwordField.setText("");
+                changingMainPanels("MemberPage2Panel");
+                return;
+            }
+
+            // If username did not match any account
+            nameError.setText("Username not found");
         }
+
     }//GEN-LAST:event_loginMouseClicked
 
     private void logoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logoutActionPerformed
@@ -2617,40 +2627,36 @@ public class GYM_PRO extends javax.swing.JFrame {
     }//GEN-LAST:event_addbtnUpActionPerformed
 
     private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteActionPerformed
+
+        confirmation.setText("");
+        adminError.setText("");
         clearDashboardError();
-        // extracting the index of selected row from the table
-        int tableIndex = memberDatabase.getSelectedRow();
 
-        // if no row is selected, display error message
-        if (tableIndex == -1) {
-            adminError.setText("One row from the table should be selected to Delete");
-        } else {
-            // ask for confirmation of row deletion 
-            int response = JOptionPane.showConfirmDialog(this, "Do you want to proceed?",
-                    "CONFIRMATION", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        // check if queue has members
+        if (logicController.getMemberQueue().isEmpty()) {
+            adminError.setText("Queue is empty! No member to delete.");
+            return;
+        }
 
-            // if deletion confirmed then
-            if (response == JOptionPane.YES_OPTION) {
-                // in case of table being sorted, extract the index of the sorted list
-                int listIndex = memberDatabase.convertRowIndexToModel(tableIndex);
+        // Dequeue member (FIFO)
+        Member memberToDelete = logicController.getMemberQueue().poll();
 
-                // remove the element from the arraylist
-                Member member = logicController.getMemberList().get(listIndex);
+        // Remove from ArrayList
+        logicController.getMemberList().remove(memberToDelete);
 
-                // typecasting the table to DefaultTableModel
-                DefaultTableModel table = (DefaultTableModel) memberDatabase.getModel();
-                // removing the row from the table
-                table.removeRow(tableIndex);
-
-                // display confirmation message
-                confirmation.setText("Member information has been successfully deleted");
-                adminError.setText("");
-            } else {
-                // data deletion cancellation message
-                confirmation.setText("Member information deletion has been cancelled");
-                adminError.setText("");
+        // Remove from Table UI
+        DefaultTableModel table = (DefaultTableModel) memberDatabase.getModel();
+        for (int i = 0; i < table.getRowCount(); i++) {
+            if (table.getValueAt(i, 0).equals(memberToDelete.getMemberId())) { // assuming first column is ID
+                table.removeRow(i);
+                break;
             }
         }
+
+        // Display confirmation
+        confirmation.setText("Deleted member: " + memberToDelete.getName() + "  "
+                + "\nQueue size now: " + logicController.getMemberQueue().size());
+
     }//GEN-LAST:event_deleteActionPerformed
 
     private void addActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addActionPerformed
@@ -2778,9 +2784,21 @@ public class GYM_PRO extends javax.swing.JFrame {
                         totalAttendance,
                         lastCheckIn);
 
-                // registering or adding the object to the table and array list
-                registerNewMember(newMember);
+// Add to Logic Controller (updates list AND queue)
+                logicController.addMember(newMember);
 
+// Add to Table UI
+                DefaultTableModel table = (DefaultTableModel) memberDatabase.getModel();
+                table.addRow(new Object[]{
+                    newMember.getMemberId(),
+                    newMember.getName(),
+                    newMember.getAge(),
+                    newMember.getMembershipType(),
+                    newMember.getLocation(),
+                    newMember.getGender(),
+                    newMember.getTotalAttendance(),
+                    newMember.getLastCheckIn()
+                });
                 // clearing text fields and resetting comboboxes
                 idField.setText("");
                 nameField.setText("");
@@ -2913,7 +2931,7 @@ public class GYM_PRO extends javax.swing.JFrame {
 
 // Empty → show all
         if (query.isEmpty()) {
-            refreshTable(logicController.getMemberList());
+            initializeData(logicController.getMemberList());
             history.setText("Recent: " + logicController.getHistoryString());
             return;
         }
@@ -2922,12 +2940,12 @@ public class GYM_PRO extends javax.swing.JFrame {
         Member exactMatch = logicController.binarySearchByMemberId(query);
 
         if (exactMatch != null) {
-            refreshTable(List.of(exactMatch));
+            initializeData(List.of(exactMatch));
         } else {
             // Then linear search by name (partial match)
             List<Member> results = logicController.linearSearchByName(query);
             if (!results.isEmpty()) {
-                refreshTable(results);
+                initializeData(results);
             } else {
                 JOptionPane.showMessageDialog(this,
                         "No member found matching: " + query,
@@ -2965,7 +2983,7 @@ public class GYM_PRO extends javax.swing.JFrame {
         }
 
 // Refresh your table/list
-        initializeData();
+        initializeData(logicController.getMemberList());
 
     }//GEN-LAST:event_SortActionPerformed
 
@@ -2990,7 +3008,8 @@ public class GYM_PRO extends javax.swing.JFrame {
 
         // ONLY restore original table when search field is cleared
         if (query.isEmpty()) {
-            initializeData();
+            initializeData(logicController.getMemberList());
+
         }
     }//GEN-LAST:event_searchTfKeyReleased
 
@@ -3151,8 +3170,9 @@ public class GYM_PRO extends javax.swing.JFrame {
     private javax.swing.JLabel log;
     private javax.swing.JLabel log1;
     private javax.swing.JButton login;
+    private javax.swing.JLabel loginError;
+    private javax.swing.JTextField loginNameField;
     private javax.swing.JLabel loginname;
-    private javax.swing.JTextField loginnamefield;
     private javax.swing.JLabel logo;
     private javax.swing.JButton logout;
     private javax.swing.JPanel main;

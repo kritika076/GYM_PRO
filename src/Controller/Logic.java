@@ -6,7 +6,9 @@ package Controller;
 
 import Model.Member;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Stack;
 
 /**
@@ -20,6 +22,8 @@ public class Logic {
     public Logic() {
         memberList = new ArrayList<>();
         initializeData();
+        initializeQueue();
+
     }
 
     private void initializeData() {
@@ -29,12 +33,35 @@ public class Logic {
         memberList.add(new Member("Mem005", "Kritika Pandey", 22, "Premium", "Samakhushi", "Others", 23, "12/25/2025"));
         memberList.add(new Member("Mem003", "Ram Bahadur", 30, "Regular", "KamalPokhari", "Female", 10, "01/4/2026"));
         memberList.add(new Member("Mem004", "laxman Pun", 40, "Premium", "Thamel", "Male", 13, "01/13/2026"));
+    }  
+        
+
+    private void initializeQueue() {
+        // fill queue from the list in order
+        for (Member m : memberList) {
+            memberQueue.offer(m);
+        }
     }
+    
 
     // Getter so the View (GUI) can see the data
     public List<Member> getMemberList() {
         return memberList;
     }
+
+    // queue to manage delete order
+    private Queue<Member> memberQueue = new LinkedList<>();
+
+// Getter for queue if needed
+    public Queue<Member> getMemberQueue() {
+        return memberQueue;
+    }
+
+// Add new member both to list and queue
+    public void addMember(Member m) {
+    memberList.add(m);       // Add to ArrayList
+    memberQueue.offer(m);    // Add to queue
+}
     //for history search
     private Stack<String> history = new Stack<>();
 //  Adds the search term to the top of the stack
@@ -88,8 +115,6 @@ public class Logic {
     //  BINARY SEARCH 
     // This is much faster but requires the list to be SORTED first.
     public Member binarySearchByMemberId(String targetId) {
-        // Ensure ascending order for binary search
-        manualSortByMemberId(true);
 
         int low = 0;
         int high = memberList.size() - 1;
