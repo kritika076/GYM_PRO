@@ -10,6 +10,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import Controller.Logic;
+import javax.swing.table.TableRowSorter;
 
 /**
  *
@@ -26,6 +27,7 @@ public class GYM_PRO extends javax.swing.JFrame {
     private java.awt.CardLayout cardLayoutUser;
 
     private Logic logicController = new Logic();
+    private Member loggedInMember; //  hold the person who just logged in
 
     /**
      * Creates new form NewJFrame
@@ -74,6 +76,8 @@ public class GYM_PRO extends javax.swing.JFrame {
         getContentPane().add(Login, "LoginPanel");
         getContentPane().add(main, "MainPanel");
         getContentPane().add(userPanel, "UserPanel");
+        getContentPane().add(memberPage, "MemberPagePanel");
+        getContentPane().add(memberPage2, "MemberPage2Panel");
 
         // showing login panel as default
         changingMainPanels("LoginPanel");
@@ -89,7 +93,7 @@ public class GYM_PRO extends javax.swing.JFrame {
         // adding panels in the body
         body.add(home, "HomePage");
         body.add(admin, "AdminPage");
-        
+
         // showing home page as dafault panel
         changingBodyPanels("HomePage");
     }
@@ -117,7 +121,6 @@ public class GYM_PRO extends javax.swing.JFrame {
         userBody.add(UserHome, "UserHome");
         userBody.add(gymPackage, "GymPackage");
         userBody.add(ContactUs, "ContactUs");
-        userBody.add(memberPage, "MemberPage");
 
         // default page
         changeUserPanels("UserHome");
@@ -199,6 +202,8 @@ public class GYM_PRO extends javax.swing.JFrame {
         idField.setText("");
         ageField.setText("");
         locationField.setText("");
+        attendanceField.setText("");
+        checkInField.setText("");
     }
 
     /**
@@ -210,6 +215,8 @@ public class GYM_PRO extends javax.swing.JFrame {
         addNameError.setText("");
         addAgeError.setText("");
         addLocationError.setText("");
+        addAttendanceError.setText("");
+        addCheckInError.setText("");
 
     }
 
@@ -222,6 +229,8 @@ public class GYM_PRO extends javax.swing.JFrame {
         updateNameErorr.setText("");
         addAgeError.setText("");
         updateLocationErorr.setText("");
+        updateAttendanceError.setText("");
+        updateCheckInError.setText("");
     }
 
     private void addRowToTable(Member member) {
@@ -232,8 +241,19 @@ public class GYM_PRO extends javax.swing.JFrame {
             member.getAge(),
             member.getMembershipType(),
             member.getLocation(),
-            member.getGender()
+            member.getGender(),
+            member.getTotalAttendance(),
+            member.getLastCheckIn()
         });
+    }
+
+    private void refreshTable(List<Member> members) {
+        DefaultTableModel model = (DefaultTableModel) memberDatabase.getModel();
+        model.setRowCount(0); // clear table
+
+        for (Member m : members) {
+            addRowToTable(m);
+        }
     }
 
     private void registerNewMember(Member member) {
@@ -241,6 +261,80 @@ public class GYM_PRO extends javax.swing.JFrame {
         logicController.getMemberList().add(member);
         // 2. Add to the JTable UI
         addRowToTable(member);
+    }
+
+    private void markAttendanceLogic() {
+        if (loggedInMember != null) {
+            // 1. Calculate New Data
+            int newTotal = loggedInMember.getTotalAttendance() + 1;
+            String today = java.time.format.DateTimeFormatter.ofPattern("MM/dd/yyyy")
+                    .format(java.time.LocalDate.now());
+
+            // 2. Prevent duplicate marking
+            if (today.equals(loggedInMember.getLastCheckIn())) {
+                JOptionPane.showMessageDialog(this, "Attendance already marked for today!", "Notice", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // 3. Update the Data Object
+            loggedInMember.setTotalAttendance(newTotal);
+            loggedInMember.setLastCheckIn(today);
+
+            // 4. Update the UI based on which member is logged in
+            if (loggedInMember.getName().equalsIgnoreCase("Prashna Regmi")) {
+                attendanceValue.setText(String.valueOf(newTotal));
+                checkedValue.setText(today);
+            } else if (loggedInMember.getName().equalsIgnoreCase("Deshan Shakya")) {
+                // These are your labels with '1' added to the name
+                attendanceValue1.setText(String.valueOf(newTotal));
+                checkedValue1.setText(today);
+            }
+
+            JOptionPane.showMessageDialog(this, "Attendance Marked for " + loggedInMember.getName());
+            initializeData();
+
+        }
+    }
+
+    private void revertAttendanceLogic() {
+        if (loggedInMember != null) {
+            int currentTotal = loggedInMember.getTotalAttendance();
+
+            // 1. Check if there is actually anything to revert
+            if (currentTotal <= 0) {
+                JOptionPane.showMessageDialog(this, "Attendance is already at 0.", "Notice", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // 2. Ask for Confirmation (Safety First!)
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Are you sure you want to remove today's attendance mark?",
+                    "Confirm Revert", JOptionPane.YES_NO_OPTION);
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                // 3. Update the Data Object
+                int newTotal = currentTotal - 1;
+                loggedInMember.setTotalAttendance(newTotal);
+
+                // If they revert, we usually set the date back to "Pending" or empty
+                String status = "Pending/Reverted";
+                loggedInMember.setLastCheckIn(status);
+
+                if (loggedInMember.getName().contains("Prashna")) {
+                    attendanceValue.setText(String.valueOf(newTotal));
+                    checkedValue.setText(status);
+                } else if (loggedInMember.getName().contains("Deshan")) {
+                    // This part handles Deshan's specific labels
+                    attendanceValue1.setText(String.valueOf(newTotal));
+                    checkedValue1.setText(status);
+                }
+
+                JOptionPane.showMessageDialog(this, "Attendance reverted for " + loggedInMember.getName());
+
+                // Refresh admin table so the count decreases there too
+                initializeData();
+            }
+        }
     }
 
     /**
@@ -256,7 +350,7 @@ public class GYM_PRO extends javax.swing.JFrame {
         CancelBtn = new javax.swing.JButton();
         age = new javax.swing.JLabel();
         membership = new javax.swing.JLabel();
-        location = new javax.swing.JLabel();
+        CheckIn = new javax.swing.JLabel();
         name = new javax.swing.JLabel();
         nameField = new javax.swing.JTextField();
         ageField = new javax.swing.JTextField();
@@ -273,25 +367,12 @@ public class GYM_PRO extends javax.swing.JFrame {
         addLocationError = new javax.swing.JLabel();
         addAgeError = new javax.swing.JLabel();
         addError = new javax.swing.JLabel();
-        main = new javax.swing.JPanel();
-        navbar = new javax.swing.JPanel();
-        navlogo = new javax.swing.JLabel();
-        logout = new javax.swing.JButton();
-        title = new javax.swing.JLabel();
-        navhome = new javax.swing.JLabel();
-        navadmin = new javax.swing.JLabel();
-        body = new javax.swing.JPanel();
-        admin = new javax.swing.JPanel();
-        adminDashboard = new javax.swing.JPanel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        memberDatabase = new javax.swing.JTable();
-        update = new javax.swing.JButton();
-        delete = new javax.swing.JButton();
-        add = new javax.swing.JButton();
-        jLabel9 = new javax.swing.JLabel();
-        adminError = new javax.swing.JLabel();
-        confirmation = new javax.swing.JLabel();
-        addVerify = new javax.swing.JLabel();
+        location = new javax.swing.JLabel();
+        Attendance = new javax.swing.JLabel();
+        checkInField = new javax.swing.JTextField();
+        attendanceField = new javax.swing.JTextField();
+        addAttendanceError = new javax.swing.JLabel();
+        addCheckInError = new javax.swing.JLabel();
         home = new javax.swing.JPanel();
         intro = new javax.swing.JLabel();
         homepic = new javax.swing.JLabel();
@@ -317,6 +398,12 @@ public class GYM_PRO extends javax.swing.JFrame {
         updateAgeErorr = new javax.swing.JLabel();
         memberboxUp = new javax.swing.JComboBox<>();
         updateErorr = new javax.swing.JLabel();
+        attendanceUp = new javax.swing.JLabel();
+        attendanceFieldUp = new javax.swing.JTextField();
+        checkInUp = new javax.swing.JLabel();
+        checkInFieldUp = new javax.swing.JTextField();
+        updateAttendanceError = new javax.swing.JLabel();
+        updateCheckInError = new javax.swing.JLabel();
         Login = new javax.swing.JPanel();
         bg_pic = new javax.swing.JLabel();
         Sub_login = new javax.swing.JPanel();
@@ -330,6 +417,68 @@ public class GYM_PRO extends javax.swing.JFrame {
         passwordError = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         logo = new javax.swing.JLabel();
+        userPanel = new javax.swing.JPanel();
+        userNav = new javax.swing.JPanel();
+        userLogo = new javax.swing.JLabel();
+        userNavH = new javax.swing.JLabel();
+        userNavG = new javax.swing.JLabel();
+        userNavC = new javax.swing.JLabel();
+        userNavM = new javax.swing.JLabel();
+        userBody = new javax.swing.JPanel();
+        UserHome = new javax.swing.JPanel();
+        UserHomepic = new javax.swing.JLabel();
+        intro1 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        ContactUs = new javax.swing.JPanel();
+        jLabel38 = new javax.swing.JLabel();
+        gymPackage = new javax.swing.JPanel();
+        jLabel6 = new javax.swing.JLabel();
+        Regular = new javax.swing.JPanel();
+        regularPlan = new javax.swing.JPanel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        Premium = new javax.swing.JPanel();
+        premiumPlan = new javax.swing.JPanel();
+        jLabel15 = new javax.swing.JLabel();
+        jLabel16 = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
+        jLabel18 = new javax.swing.JLabel();
+        jLabel20 = new javax.swing.JLabel();
+        jLabel21 = new javax.swing.JLabel();
+        jLabel22 = new javax.swing.JLabel();
+        memberPage2 = new javax.swing.JPanel();
+        memberNav1 = new javax.swing.JPanel();
+        log1 = new javax.swing.JLabel();
+        jLabel24 = new javax.swing.JLabel();
+        jLabel39 = new javax.swing.JLabel();
+        memberLogout1 = new javax.swing.JButton();
+        profileM1 = new javax.swing.JPanel();
+        jLabel40 = new javax.swing.JLabel();
+        jLabel41 = new javax.swing.JLabel();
+        jLabel42 = new javax.swing.JLabel();
+        jLabel43 = new javax.swing.JLabel();
+        jLabel44 = new javax.swing.JLabel();
+        jLabel45 = new javax.swing.JLabel();
+        memberDetails1 = new javax.swing.JPanel();
+        jLabel46 = new javax.swing.JLabel();
+        jLabel47 = new javax.swing.JLabel();
+        jLabel48 = new javax.swing.JLabel();
+        jLabel49 = new javax.swing.JLabel();
+        jLabel50 = new javax.swing.JLabel();
+        jLabel51 = new javax.swing.JLabel();
+        attendanceP1 = new javax.swing.JPanel();
+        jLabel52 = new javax.swing.JLabel();
+        attendanceText1 = new javax.swing.JLabel();
+        attendanceValue1 = new javax.swing.JLabel();
+        checkedText1 = new javax.swing.JLabel();
+        checkedValue1 = new javax.swing.JLabel();
+        attendance1 = new javax.swing.JButton();
+        Revert1 = new javax.swing.JButton();
         memberPage = new javax.swing.JPanel();
         memberNav = new javax.swing.JPanel();
         log = new javax.swing.JLabel();
@@ -357,40 +506,31 @@ public class GYM_PRO extends javax.swing.JFrame {
         checkedText = new javax.swing.JLabel();
         checkedValue = new javax.swing.JLabel();
         attendance = new javax.swing.JButton();
-        userPanel = new javax.swing.JPanel();
-        userNav = new javax.swing.JPanel();
-        userLogo = new javax.swing.JLabel();
-        userNavH = new javax.swing.JLabel();
-        userNavG = new javax.swing.JLabel();
-        userNavC = new javax.swing.JLabel();
-        userNavM = new javax.swing.JLabel();
-        userBody = new javax.swing.JPanel();
-        UserHome = new javax.swing.JPanel();
-        UserHomepic = new javax.swing.JLabel();
-        intro1 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        gymPackage = new javax.swing.JPanel();
-        jLabel6 = new javax.swing.JLabel();
-        Regular = new javax.swing.JPanel();
-        regularPlan = new javax.swing.JPanel();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
-        jLabel14 = new javax.swing.JLabel();
-        Premium = new javax.swing.JPanel();
-        premiumPlan = new javax.swing.JPanel();
-        jLabel15 = new javax.swing.JLabel();
-        jLabel16 = new javax.swing.JLabel();
-        jLabel17 = new javax.swing.JLabel();
-        jLabel18 = new javax.swing.JLabel();
-        jLabel20 = new javax.swing.JLabel();
-        jLabel21 = new javax.swing.JLabel();
-        jLabel22 = new javax.swing.JLabel();
-        ContactUs = new javax.swing.JPanel();
-        jLabel38 = new javax.swing.JLabel();
+        Revert = new javax.swing.JButton();
+        main = new javax.swing.JPanel();
+        navbar = new javax.swing.JPanel();
+        navlogo = new javax.swing.JLabel();
+        logout = new javax.swing.JButton();
+        title = new javax.swing.JLabel();
+        navhome = new javax.swing.JLabel();
+        navadmin = new javax.swing.JLabel();
+        body = new javax.swing.JPanel();
+        admin = new javax.swing.JPanel();
+        adminDashboard = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        memberDatabase = new javax.swing.JTable();
+        update = new javax.swing.JButton();
+        delete = new javax.swing.JButton();
+        add = new javax.swing.JButton();
+        jLabel9 = new javax.swing.JLabel();
+        adminError = new javax.swing.JLabel();
+        confirmation = new javax.swing.JLabel();
+        addVerify = new javax.swing.JLabel();
+        searchTf = new javax.swing.JTextField();
+        Search = new javax.swing.JButton();
+        sortCombo = new javax.swing.JComboBox<>();
+        Sort = new javax.swing.JButton();
+        history = new javax.swing.JLabel();
 
         addMembers.setBackground(new java.awt.Color(163, 73, 5));
         addMembers.setPreferredSize(new java.awt.Dimension(882, 501));
@@ -413,46 +553,46 @@ public class GYM_PRO extends javax.swing.JFrame {
         age.setForeground(new java.awt.Color(255, 255, 255));
         age.setText("Age");
         addMembers.add(age);
-        age.setBounds(250, 200, 144, 37);
+        age.setBounds(250, 140, 144, 30);
 
         membership.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         membership.setForeground(new java.awt.Color(255, 255, 255));
         membership.setText("MembershipType");
         addMembers.add(membership);
-        membership.setBounds(490, 200, 203, 37);
+        membership.setBounds(490, 150, 203, 30);
 
-        location.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        location.setForeground(new java.awt.Color(255, 255, 255));
-        location.setText("Location");
-        addMembers.add(location);
-        location.setBounds(250, 313, 144, 37);
+        CheckIn.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        CheckIn.setForeground(new java.awt.Color(255, 255, 255));
+        CheckIn.setText("Check-In");
+        addMembers.add(CheckIn);
+        CheckIn.setBounds(490, 320, 144, 37);
 
         name.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         name.setForeground(new java.awt.Color(255, 255, 255));
         name.setText("Name");
         addMembers.add(name);
-        name.setBounds(500, 70, 144, 37);
+        name.setBounds(490, 50, 144, 37);
 
         nameField.setBackground(new java.awt.Color(163, 73, 5));
         nameField.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
         nameField.setForeground(new java.awt.Color(255, 255, 255));
         nameField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
         addMembers.add(nameField);
-        nameField.setBounds(490, 140, 218, 43);
+        nameField.setBounds(490, 90, 218, 43);
 
         ageField.setBackground(new java.awt.Color(163, 73, 5));
         ageField.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
         ageField.setForeground(new java.awt.Color(255, 255, 255));
         ageField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
         addMembers.add(ageField);
-        ageField.setBounds(250, 252, 218, 43);
+        ageField.setBounds(250, 180, 218, 43);
 
         idField.setBackground(new java.awt.Color(163, 73, 5));
         idField.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
         idField.setForeground(new java.awt.Color(255, 255, 255));
         idField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
         addMembers.add(idField);
-        idField.setBounds(250, 140, 218, 43);
+        idField.setBounds(250, 90, 218, 43);
 
         clearBtn.setBackground(new java.awt.Color(163, 73, 5));
         clearBtn.setFont(new java.awt.Font("Arial Rounded MT Bold", 1, 24)); // NOI18N
@@ -465,7 +605,7 @@ public class GYM_PRO extends javax.swing.JFrame {
             }
         });
         addMembers.add(clearBtn);
-        clearBtn.setBounds(250, 433, 220, 40);
+        clearBtn.setBounds(250, 430, 220, 40);
 
         addBtn.setBackground(new java.awt.Color(163, 73, 5));
         addBtn.setFont(new java.awt.Font("Arial Rounded MT Bold", 1, 24)); // NOI18N
@@ -478,7 +618,7 @@ public class GYM_PRO extends javax.swing.JFrame {
             }
         });
         addMembers.add(addBtn);
-        addBtn.setBounds(490, 433, 220, 40);
+        addBtn.setBounds(490, 430, 220, 40);
 
         locationField.setBackground(new java.awt.Color(163, 73, 5));
         locationField.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
@@ -490,19 +630,19 @@ public class GYM_PRO extends javax.swing.JFrame {
             }
         });
         addMembers.add(locationField);
-        locationField.setBounds(250, 363, 218, 43);
+        locationField.setBounds(250, 270, 218, 43);
 
         gender.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         gender.setForeground(new java.awt.Color(255, 255, 255));
         gender.setText("Gender");
         addMembers.add(gender);
-        gender.setBounds(490, 313, 144, 37);
+        gender.setBounds(490, 230, 144, 37);
 
         id.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         id.setForeground(new java.awt.Color(255, 255, 255));
         id.setText("ID");
         addMembers.add(id);
-        id.setBounds(250, 80, 144, 37);
+        id.setBounds(250, 50, 144, 37);
 
         genderBox.setBackground(new java.awt.Color(163, 73, 5));
         genderBox.setFont(new java.awt.Font("Arial Rounded MT Bold", 0, 24)); // NOI18N
@@ -510,7 +650,7 @@ public class GYM_PRO extends javax.swing.JFrame {
         genderBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Male", "Female", "Others" }));
         genderBox.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
         addMembers.add(genderBox);
-        genderBox.setBounds(490, 363, 220, 40);
+        genderBox.setBounds(490, 270, 220, 40);
 
         memberBox.setBackground(new java.awt.Color(163, 73, 5));
         memberBox.setFont(new java.awt.Font("Arial Rounded MT Bold", 1, 18)); // NOI18N
@@ -518,263 +658,67 @@ public class GYM_PRO extends javax.swing.JFrame {
         memberBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Regular", "Premium" }));
         memberBox.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
         addMembers.add(memberBox);
-        memberBox.setBounds(486, 249, 222, 45);
+        memberBox.setBounds(490, 180, 222, 40);
 
         addIdError.setForeground(new java.awt.Color(255, 255, 51));
         addMembers.add(addIdError);
-        addIdError.setBounds(250, 190, 210, 10);
+        addIdError.setBounds(270, 140, 210, 10);
 
         addNameError.setForeground(new java.awt.Color(255, 255, 0));
         addMembers.add(addNameError);
-        addNameError.setBounds(490, 190, 220, 10);
+        addNameError.setBounds(490, 140, 220, 10);
 
         addLocationError.setForeground(new java.awt.Color(255, 255, 0));
         addMembers.add(addLocationError);
-        addLocationError.setBounds(250, 410, 220, 10);
+        addLocationError.setBounds(250, 320, 220, 10);
 
         addAgeError.setForeground(new java.awt.Color(255, 255, 0));
         addMembers.add(addAgeError);
-        addAgeError.setBounds(250, 300, 220, 10);
+        addAgeError.setBounds(250, 230, 220, 10);
 
         addError.setForeground(new java.awt.Color(255, 255, 0));
         addMembers.add(addError);
-        addError.setBounds(490, 480, 220, 10);
+        addError.setBounds(500, 480, 220, 10);
 
-        main.setBackground(new java.awt.Color(163, 73, 5));
-        main.setPreferredSize(new java.awt.Dimension(920, 660));
+        location.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        location.setForeground(new java.awt.Color(255, 255, 255));
+        location.setText("Location");
+        addMembers.add(location);
+        location.setBounds(250, 230, 144, 37);
 
-        navbar.setBackground(new java.awt.Color(163, 73, 5));
+        Attendance.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        Attendance.setForeground(new java.awt.Color(255, 255, 255));
+        Attendance.setText("Attendance");
+        addMembers.add(Attendance);
+        Attendance.setBounds(250, 320, 144, 37);
 
-        navlogo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/logo.png"))); // NOI18N
-
-        logout.setBackground(new java.awt.Color(163, 73, 5));
-        logout.setFont(new java.awt.Font("Segoe UI Semibold", 3, 18)); // NOI18N
-        logout.setForeground(new java.awt.Color(255, 255, 204));
-        logout.setText("LOG OUT");
-        logout.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 0, 0), 2, true));
-        logout.addActionListener(new java.awt.event.ActionListener() {
+        checkInField.setBackground(new java.awt.Color(163, 73, 5));
+        checkInField.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
+        checkInField.setForeground(new java.awt.Color(255, 255, 255));
+        checkInField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        checkInField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                logoutActionPerformed(evt);
+                checkInFieldActionPerformed(evt);
             }
         });
+        addMembers.add(checkInField);
+        checkInField.setBounds(490, 360, 218, 43);
 
-        title.setFont(new java.awt.Font("Segoe UI", 3, 24)); // NOI18N
-        title.setForeground(new java.awt.Color(255, 255, 255));
-        title.setText("GYM PRO  ");
-
-        navhome.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        navhome.setForeground(new java.awt.Color(255, 255, 255));
-        navhome.setText("HOME");
-        navhome.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                navhomeMouseClicked(evt);
-            }
-        });
-
-        navadmin.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        navadmin.setForeground(new java.awt.Color(255, 255, 255));
-        navadmin.setText("ADMIN");
-        navadmin.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                navadminMouseClicked(evt);
-            }
-        });
-
-        javax.swing.GroupLayout navbarLayout = new javax.swing.GroupLayout(navbar);
-        navbar.setLayout(navbarLayout);
-        navbarLayout.setHorizontalGroup(
-            navbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(navbarLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(navlogo, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(navhome, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(108, 108, 108)
-                .addComponent(title)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(navadmin, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(62, 62, 62)
-                .addComponent(logout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(21, 21, 21))
-        );
-        navbarLayout.setVerticalGroup(
-            navbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, navbarLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addGroup(navbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(navadmin, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(title, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(navhome, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(16, 16, 16))
-            .addGroup(navbarLayout.createSequentialGroup()
-                .addGroup(navbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(navlogo, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(navbarLayout.createSequentialGroup()
-                        .addGap(23, 23, 23)
-                        .addComponent(logout, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        body.setBackground(new java.awt.Color(163, 73, 5));
-
-        admin.setBackground(new java.awt.Color(163, 73, 5));
-
-        adminDashboard.setBackground(new java.awt.Color(163, 73, 5));
-
-        memberDatabase.setBackground(new java.awt.Color(163, 73, 5));
-        memberDatabase.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 2));
-        memberDatabase.setForeground(new java.awt.Color(255, 255, 255));
-        memberDatabase.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Member_ID", "Name", "Age", "Membership_Type", "Location", "Gender"
-            }
-        ));
-        jScrollPane2.setViewportView(memberDatabase);
-
-        update.setBackground(new java.awt.Color(163, 73, 5));
-        update.setFont(new java.awt.Font("Arial Rounded MT Bold", 0, 24)); // NOI18N
-        update.setForeground(new java.awt.Color(255, 255, 255));
-        update.setText("Update Member");
-        update.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        update.addActionListener(new java.awt.event.ActionListener() {
+        attendanceField.setBackground(new java.awt.Color(163, 73, 5));
+        attendanceField.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
+        attendanceField.setForeground(new java.awt.Color(255, 255, 255));
+        attendanceField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        attendanceField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                updateActionPerformed(evt);
+                attendanceFieldActionPerformed(evt);
             }
         });
-
-        delete.setBackground(new java.awt.Color(163, 73, 5));
-        delete.setFont(new java.awt.Font("Arial Rounded MT Bold", 0, 24)); // NOI18N
-        delete.setForeground(new java.awt.Color(255, 255, 255));
-        delete.setText("Delete Member");
-        delete.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        delete.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteActionPerformed(evt);
-            }
-        });
-
-        add.setBackground(new java.awt.Color(163, 73, 5));
-        add.setFont(new java.awt.Font("Arial Rounded MT Bold", 0, 24)); // NOI18N
-        add.setForeground(new java.awt.Color(255, 255, 255));
-        add.setText("Add Member");
-        add.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        add.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addActionPerformed(evt);
-            }
-        });
-
-        jLabel9.setFont(new java.awt.Font("Rockwell Extra Bold", 0, 14)); // NOI18N
-        jLabel9.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel9.setText("To add new members ,click the button below");
-
-        adminError.setForeground(new java.awt.Color(255, 255, 0));
-
-        confirmation.setForeground(new java.awt.Color(255, 255, 0));
-
-        addVerify.setForeground(new java.awt.Color(255, 255, 0));
-
-        javax.swing.GroupLayout adminDashboardLayout = new javax.swing.GroupLayout(adminDashboard);
-        adminDashboard.setLayout(adminDashboardLayout);
-        adminDashboardLayout.setHorizontalGroup(
-            adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, adminDashboardLayout.createSequentialGroup()
-                .addContainerGap(32, Short.MAX_VALUE)
-                .addGroup(adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(addVerify, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(add, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, adminDashboardLayout.createSequentialGroup()
-                            .addGroup(adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, adminDashboardLayout.createSequentialGroup()
-                                    .addGroup(adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                        .addComponent(adminError, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, adminDashboardLayout.createSequentialGroup()
-                                            .addComponent(update, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(delete, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(confirmation, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 827, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGap(18, 18, 18)))))
-        );
-        adminDashboardLayout.setVerticalGroup(
-            adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(adminDashboardLayout.createSequentialGroup()
-                .addGap(45, 45, 45)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(31, 31, 31)
-                .addGroup(adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(update, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(delete, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(confirmation, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(adminError, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(add, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(addVerify, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(67, Short.MAX_VALUE))
-        );
-
-        javax.swing.GroupLayout adminLayout = new javax.swing.GroupLayout(admin);
-        admin.setLayout(adminLayout);
-        adminLayout.setHorizontalGroup(
-            adminLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(adminLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(adminDashboard, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        adminLayout.setVerticalGroup(
-            adminLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(adminLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(adminDashboard, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        javax.swing.GroupLayout bodyLayout = new javax.swing.GroupLayout(body);
-        body.setLayout(bodyLayout);
-        bodyLayout.setHorizontalGroup(
-            bodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(bodyLayout.createSequentialGroup()
-                .addGap(22, 22, 22)
-                .addComponent(admin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(23, 23, 23))
-        );
-        bodyLayout.setVerticalGroup(
-            bodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(bodyLayout.createSequentialGroup()
-                .addGap(23, 23, 23)
-                .addComponent(admin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(24, 24, 24))
-        );
-
-        javax.swing.GroupLayout mainLayout = new javax.swing.GroupLayout(main);
-        main.setLayout(mainLayout);
-        mainLayout.setHorizontalGroup(
-            mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(body, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(navbar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        mainLayout.setVerticalGroup(
-            mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(mainLayout.createSequentialGroup()
-                .addGroup(mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(mainLayout.createSequentialGroup()
-                        .addGap(89, 89, 89)
-                        .addComponent(body, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(navbar, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+        addMembers.add(attendanceField);
+        attendanceField.setBounds(250, 360, 218, 43);
+        addMembers.add(addAttendanceError);
+        addAttendanceError.setBounds(250, 410, 220, 10);
+        addMembers.add(addCheckInError);
+        addCheckInError.setBounds(490, 410, 220, 10);
 
         home.setBackground(new java.awt.Color(163, 73, 5));
         home.setPreferredSize(new java.awt.Dimension(920, 660));
@@ -850,25 +794,25 @@ public class GYM_PRO extends javax.swing.JFrame {
         ageUp.setForeground(new java.awt.Color(255, 255, 255));
         ageUp.setText("Age");
         updateMembers.add(ageUp);
-        ageUp.setBounds(230, 190, 144, 37);
+        ageUp.setBounds(220, 150, 144, 37);
 
         membershipUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         membershipUp.setForeground(new java.awt.Color(255, 255, 255));
         membershipUp.setText("MembershipType");
         updateMembers.add(membershipUp);
-        membershipUp.setBounds(470, 200, 203, 37);
+        membershipUp.setBounds(460, 160, 203, 37);
 
         idUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         idUp.setForeground(new java.awt.Color(255, 255, 255));
         idUp.setText("ID");
         updateMembers.add(idUp);
-        idUp.setBounds(240, 80, 144, 37);
+        idUp.setBounds(220, 50, 144, 37);
 
         nameUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         nameUp.setForeground(new java.awt.Color(255, 255, 255));
         nameUp.setText("Name");
         updateMembers.add(nameUp);
-        nameUp.setBounds(480, 80, 144, 37);
+        nameUp.setBounds(460, 50, 144, 37);
 
         namefieldUp.setBackground(new java.awt.Color(163, 73, 5));
         namefieldUp.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
@@ -880,21 +824,21 @@ public class GYM_PRO extends javax.swing.JFrame {
             }
         });
         updateMembers.add(namefieldUp);
-        namefieldUp.setBounds(460, 120, 218, 43);
+        namefieldUp.setBounds(460, 100, 218, 43);
 
         agefieldUp.setBackground(new java.awt.Color(163, 73, 5));
         agefieldUp.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
         agefieldUp.setForeground(new java.awt.Color(255, 255, 255));
         agefieldUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
         updateMembers.add(agefieldUp);
-        agefieldUp.setBounds(230, 240, 218, 43);
+        agefieldUp.setBounds(220, 190, 218, 43);
 
         idfieldUp.setBackground(new java.awt.Color(163, 73, 5));
         idfieldUp.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
         idfieldUp.setForeground(new java.awt.Color(255, 255, 255));
         idfieldUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
         updateMembers.add(idfieldUp);
-        idfieldUp.setBounds(230, 120, 218, 43);
+        idfieldUp.setBounds(220, 100, 218, 43);
 
         addbtnUp.setBackground(new java.awt.Color(163, 73, 5));
         addbtnUp.setFont(new java.awt.Font("Arial Rounded MT Bold", 1, 24)); // NOI18N
@@ -907,26 +851,26 @@ public class GYM_PRO extends javax.swing.JFrame {
             }
         });
         updateMembers.add(addbtnUp);
-        addbtnUp.setBounds(470, 420, 220, 40);
+        addbtnUp.setBounds(460, 430, 220, 40);
 
         locationfieldUp.setBackground(new java.awt.Color(163, 73, 5));
         locationfieldUp.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
         locationfieldUp.setForeground(new java.awt.Color(255, 255, 255));
         locationfieldUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
         updateMembers.add(locationfieldUp);
-        locationfieldUp.setBounds(230, 350, 218, 43);
+        locationfieldUp.setBounds(220, 280, 218, 43);
 
         locationUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         locationUp.setForeground(new java.awt.Color(255, 255, 255));
         locationUp.setText("Location");
         updateMembers.add(locationUp);
-        locationUp.setBounds(230, 310, 144, 37);
+        locationUp.setBounds(220, 240, 144, 37);
 
         genderUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         genderUp.setForeground(new java.awt.Color(255, 255, 255));
         genderUp.setText("Gender");
         updateMembers.add(genderUp);
-        genderUp.setBounds(480, 300, 144, 37);
+        genderUp.setBounds(460, 240, 144, 37);
 
         genderboxUp.setBackground(new java.awt.Color(163, 73, 5));
         genderboxUp.setFont(new java.awt.Font("Arial Rounded MT Bold", 0, 24)); // NOI18N
@@ -934,23 +878,23 @@ public class GYM_PRO extends javax.swing.JFrame {
         genderboxUp.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Male", "Female", "Others" }));
         genderboxUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
         updateMembers.add(genderboxUp);
-        genderboxUp.setBounds(470, 350, 220, 40);
+        genderboxUp.setBounds(460, 280, 220, 40);
 
         updateIdErorr.setForeground(new java.awt.Color(255, 255, 0));
         updateMembers.add(updateIdErorr);
-        updateIdErorr.setBounds(230, 170, 210, 0);
+        updateIdErorr.setBounds(230, 150, 210, 10);
 
         updateLocationErorr.setForeground(new java.awt.Color(255, 255, 0));
         updateMembers.add(updateLocationErorr);
-        updateLocationErorr.setBounds(230, 410, 210, 20);
+        updateLocationErorr.setBounds(220, 330, 210, 10);
 
         updateNameErorr.setForeground(new java.awt.Color(255, 255, 0));
         updateMembers.add(updateNameErorr);
-        updateNameErorr.setBounds(460, 170, 210, 20);
+        updateNameErorr.setBounds(460, 150, 210, 10);
 
         updateAgeErorr.setForeground(new java.awt.Color(255, 255, 0));
         updateMembers.add(updateAgeErorr);
-        updateAgeErorr.setBounds(230, 290, 210, 20);
+        updateAgeErorr.setBounds(220, 240, 210, 10);
 
         memberboxUp.setBackground(new java.awt.Color(163, 73, 5));
         memberboxUp.setFont(new java.awt.Font("Arial Rounded MT Bold", 0, 18)); // NOI18N
@@ -958,11 +902,51 @@ public class GYM_PRO extends javax.swing.JFrame {
         memberboxUp.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Regular", "Premium" }));
         memberboxUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
         updateMembers.add(memberboxUp);
-        memberboxUp.setBounds(470, 240, 210, 40);
+        memberboxUp.setBounds(460, 200, 210, 40);
 
         updateErorr.setForeground(new java.awt.Color(255, 255, 0));
         updateMembers.add(updateErorr);
         updateErorr.setBounds(470, 470, 210, 20);
+
+        attendanceUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        attendanceUp.setForeground(new java.awt.Color(255, 255, 255));
+        attendanceUp.setText("Attendance");
+        updateMembers.add(attendanceUp);
+        attendanceUp.setBounds(220, 330, 144, 37);
+
+        attendanceFieldUp.setBackground(new java.awt.Color(163, 73, 5));
+        attendanceFieldUp.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
+        attendanceFieldUp.setForeground(new java.awt.Color(255, 255, 255));
+        attendanceFieldUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        attendanceFieldUp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                attendanceFieldUpActionPerformed(evt);
+            }
+        });
+        updateMembers.add(attendanceFieldUp);
+        attendanceFieldUp.setBounds(220, 370, 218, 43);
+
+        checkInUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        checkInUp.setForeground(new java.awt.Color(255, 255, 255));
+        checkInUp.setText("Check-In");
+        updateMembers.add(checkInUp);
+        checkInUp.setBounds(460, 320, 144, 37);
+
+        checkInFieldUp.setBackground(new java.awt.Color(163, 73, 5));
+        checkInFieldUp.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
+        checkInFieldUp.setForeground(new java.awt.Color(255, 255, 255));
+        checkInFieldUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        checkInFieldUp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkInFieldUpActionPerformed(evt);
+            }
+        });
+        updateMembers.add(checkInFieldUp);
+        checkInFieldUp.setBounds(460, 370, 218, 43);
+        updateMembers.add(updateAttendanceError);
+        updateAttendanceError.setBounds(220, 420, 220, 10);
+        updateMembers.add(updateCheckInError);
+        updateCheckInError.setBounds(460, 420, 220, 10);
 
         Login.setBackground(new java.awt.Color(163, 73, 5));
         Login.setMaximumSize(new java.awt.Dimension(900, 670));
@@ -1060,261 +1044,6 @@ public class GYM_PRO extends javax.swing.JFrame {
 
         logo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/logo.png"))); // NOI18N
         Login.add(logo, new org.netbeans.lib.awtextra.AbsoluteConstraints(-30, 10, 160, 100));
-
-        memberPage.setBackground(new java.awt.Color(163, 73, 5));
-        memberPage.setPreferredSize(new java.awt.Dimension(900, 670));
-
-        memberNav.setBackground(new java.awt.Color(170, 175, 175));
-
-        log.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/logo.png"))); // NOI18N
-
-        jLabel19.setFont(new java.awt.Font("Times New Roman", 1, 36)); // NOI18N
-        jLabel19.setText("GYM PRO");
-
-        jLabel23.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel23.setText("Welcome, Prashna Regmi");
-
-        memberLogout.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
-        memberLogout.setText("LOGOUT");
-        memberLogout.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 0, 0), 2));
-        memberLogout.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                memberLogoutActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout memberNavLayout = new javax.swing.GroupLayout(memberNav);
-        memberNav.setLayout(memberNavLayout);
-        memberNavLayout.setHorizontalGroup(
-            memberNavLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(memberNavLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(log, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 155, Short.MAX_VALUE)
-                .addComponent(jLabel23)
-                .addGap(27, 27, 27)
-                .addComponent(memberLogout, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(31, 31, 31))
-        );
-        memberNavLayout.setVerticalGroup(
-            memberNavLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(memberNavLayout.createSequentialGroup()
-                .addGap(14, 14, 14)
-                .addGroup(memberNavLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, memberNavLayout.createSequentialGroup()
-                        .addComponent(log, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, memberNavLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(memberNavLayout.createSequentialGroup()
-                            .addGroup(memberNavLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(memberLogout, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel23))
-                            .addContainerGap())
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, memberNavLayout.createSequentialGroup()
-                            .addComponent(jLabel19)
-                            .addGap(35, 35, 35)))))
-        );
-
-        jLabel25.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/prashna.jpg"))); // NOI18N
-        jLabel25.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204), 3));
-
-        jLabel26.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel26.setText("Prashna Regmi");
-
-        jLabel27.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel27.setText("Member ID : Mem001");
-
-        jLabel28.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel28.setText("Gender : Female");
-
-        jLabel29.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel29.setText("Membership : Premium");
-
-        jLabel31.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel31.setText("Profile");
-
-        javax.swing.GroupLayout profileMLayout = new javax.swing.GroupLayout(profileM);
-        profileM.setLayout(profileMLayout);
-        profileMLayout.setHorizontalGroup(
-            profileMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, profileMLayout.createSequentialGroup()
-                .addContainerGap(78, Short.MAX_VALUE)
-                .addGroup(profileMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, profileMLayout.createSequentialGroup()
-                        .addComponent(jLabel25)
-                        .addGap(77, 77, 77))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, profileMLayout.createSequentialGroup()
-                        .addComponent(jLabel26)
-                        .addGap(90, 90, 90))))
-            .addGroup(profileMLayout.createSequentialGroup()
-                .addGroup(profileMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(profileMLayout.createSequentialGroup()
-                        .addGap(27, 27, 27)
-                        .addGroup(profileMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel29)
-                            .addComponent(jLabel28)
-                            .addComponent(jLabel27)))
-                    .addGroup(profileMLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel31, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        profileMLayout.setVerticalGroup(
-            profileMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(profileMLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel31)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
-                .addComponent(jLabel25, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel26)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel27)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel28)
-                .addGap(12, 12, 12)
-                .addComponent(jLabel29)
-                .addGap(14, 14, 14))
-        );
-
-        jLabel30.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        jLabel30.setText("Membership Details");
-
-        jLabel32.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel32.setText("Membership Type : Premium");
-
-        jLabel33.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel33.setText("Join Date : 01/01/2026");
-
-        jLabel34.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel34.setText("Status : ");
-
-        jLabel35.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel35.setForeground(new java.awt.Color(0, 204, 51));
-        jLabel35.setText("Active");
-
-        jLabel36.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel36.setText("Join Date : 01/01/2027");
-
-        javax.swing.GroupLayout memberDetailsLayout = new javax.swing.GroupLayout(memberDetails);
-        memberDetails.setLayout(memberDetailsLayout);
-        memberDetailsLayout.setHorizontalGroup(
-            memberDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(memberDetailsLayout.createSequentialGroup()
-                .addGap(19, 19, 19)
-                .addGroup(memberDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel30, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel32)
-                    .addComponent(jLabel33)
-                    .addGroup(memberDetailsLayout.createSequentialGroup()
-                        .addComponent(jLabel34)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel35, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jLabel36))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        memberDetailsLayout.setVerticalGroup(
-            memberDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(memberDetailsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel30)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel32)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel33)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(memberDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel34)
-                    .addComponent(jLabel35))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel36)
-                .addContainerGap(22, Short.MAX_VALUE))
-        );
-
-        jLabel37.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        jLabel37.setText("Attendance OverView");
-
-        attendanceText.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        attendanceText.setText("Total Days Attended :");
-
-        attendanceValue.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        attendanceValue.setText("13 ");
-
-        checkedText.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        checkedText.setText("Last Checked -In :");
-
-        checkedValue.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        checkedValue.setText("01/13/2026");
-
-        attendance.setBackground(new java.awt.Color(170, 175, 175));
-        attendance.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        attendance.setText("Mark Today's Attendance");
-
-        javax.swing.GroupLayout attendancePLayout = new javax.swing.GroupLayout(attendanceP);
-        attendanceP.setLayout(attendancePLayout);
-        attendancePLayout.setHorizontalGroup(
-            attendancePLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(attendancePLayout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addGroup(attendancePLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel37)
-                    .addGroup(attendancePLayout.createSequentialGroup()
-                        .addComponent(attendanceText)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(attendanceValue))
-                    .addGroup(attendancePLayout.createSequentialGroup()
-                        .addComponent(checkedText)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(checkedValue, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(attendance))
-                .addContainerGap(196, Short.MAX_VALUE))
-        );
-        attendancePLayout.setVerticalGroup(
-            attendancePLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(attendancePLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel37)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(attendancePLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(attendanceValue)
-                    .addComponent(attendanceText))
-                .addGap(18, 18, 18)
-                .addGroup(attendancePLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(checkedText)
-                    .addComponent(checkedValue))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
-                .addComponent(attendance)
-                .addGap(24, 24, 24))
-        );
-
-        javax.swing.GroupLayout memberPageLayout = new javax.swing.GroupLayout(memberPage);
-        memberPage.setLayout(memberPageLayout);
-        memberPageLayout.setHorizontalGroup(
-            memberPageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(memberNav, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(memberPageLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(profileM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(memberPageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(memberDetails, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(attendanceP, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(31, 31, 31))
-        );
-        memberPageLayout.setVerticalGroup(
-            memberPageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(memberPageLayout.createSequentialGroup()
-                .addComponent(memberNav, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(49, 49, 49)
-                .addGroup(memberPageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(memberPageLayout.createSequentialGroup()
-                        .addComponent(memberDetails, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(attendanceP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(profileM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-        );
 
         userPanel.setBackground(new java.awt.Color(163, 73, 5));
         userPanel.setPreferredSize(new java.awt.Dimension(920, 660));
@@ -1457,6 +1186,26 @@ public class GYM_PRO extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(userBody, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(13, 13, 13))
+        );
+
+        ContactUs.setBackground(new java.awt.Color(163, 73, 5));
+        ContactUs.setPreferredSize(new java.awt.Dimension(929, 533));
+
+        jLabel38.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/contactUs.png"))); // NOI18N
+        jLabel38.setMinimumSize(new java.awt.Dimension(929, 533));
+
+        javax.swing.GroupLayout ContactUsLayout = new javax.swing.GroupLayout(ContactUs);
+        ContactUs.setLayout(ContactUsLayout);
+        ContactUsLayout.setHorizontalGroup(
+            ContactUsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jLabel38, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        ContactUsLayout.setVerticalGroup(
+            ContactUsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(ContactUsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel38, javax.swing.GroupLayout.PREFERRED_SIZE, 486, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(31, Short.MAX_VALUE))
         );
 
         gymPackage.setBackground(new java.awt.Color(163, 73, 5));
@@ -1660,15 +1409,16 @@ public class GYM_PRO extends javax.swing.JFrame {
         gymPackageLayout.setHorizontalGroup(
             gymPackageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(gymPackageLayout.createSequentialGroup()
-                .addGap(331, 331, 331)
-                .addComponent(jLabel6)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(gymPackageLayout.createSequentialGroup()
-                .addGap(74, 74, 74)
-                .addComponent(Regular, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 96, Short.MAX_VALUE)
-                .addComponent(Premium, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(77, 77, 77))
+                .addGroup(gymPackageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(gymPackageLayout.createSequentialGroup()
+                        .addGap(331, 331, 331)
+                        .addComponent(jLabel6))
+                    .addGroup(gymPackageLayout.createSequentialGroup()
+                        .addGap(74, 74, 74)
+                        .addComponent(Regular, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(67, 67, 67)
+                        .addComponent(Premium, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(106, Short.MAX_VALUE))
         );
         gymPackageLayout.setVerticalGroup(
             gymPackageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1682,45 +1432,877 @@ public class GYM_PRO extends javax.swing.JFrame {
                 .addContainerGap(70, Short.MAX_VALUE))
         );
 
+        memberPage2.setBackground(new java.awt.Color(163, 73, 5));
+        memberPage2.setPreferredSize(new java.awt.Dimension(900, 670));
+
+        memberNav1.setBackground(new java.awt.Color(170, 175, 175));
+
+        log1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/logo.png"))); // NOI18N
+
+        jLabel24.setFont(new java.awt.Font("Times New Roman", 1, 36)); // NOI18N
+        jLabel24.setText("GYM PRO");
+
+        jLabel39.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel39.setText("Welcome, Deshan Shakya");
+
+        memberLogout1.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
+        memberLogout1.setText("LOGOUT");
+        memberLogout1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 0, 0), 2));
+        memberLogout1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                memberLogout1ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout memberNav1Layout = new javax.swing.GroupLayout(memberNav1);
+        memberNav1.setLayout(memberNav1Layout);
+        memberNav1Layout.setHorizontalGroup(
+            memberNav1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(memberNav1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(log1, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel24, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 155, Short.MAX_VALUE)
+                .addComponent(jLabel39)
+                .addGap(27, 27, 27)
+                .addComponent(memberLogout1, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(31, 31, 31))
+        );
+        memberNav1Layout.setVerticalGroup(
+            memberNav1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(memberNav1Layout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addGroup(memberNav1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, memberNav1Layout.createSequentialGroup()
+                        .addComponent(log1, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, memberNav1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(memberNav1Layout.createSequentialGroup()
+                            .addGroup(memberNav1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(memberLogout1, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel39))
+                            .addContainerGap())
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, memberNav1Layout.createSequentialGroup()
+                            .addComponent(jLabel24)
+                            .addGap(35, 35, 35)))))
+        );
+
+        jLabel40.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/Deshan.jpg"))); // NOI18N
+        jLabel40.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204), 3));
+
+        jLabel41.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel41.setText("Deshan Shakya");
+
+        jLabel42.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel42.setText("Member ID : Mem002");
+
+        jLabel43.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel43.setText("Gender : Male");
+
+        jLabel44.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel44.setText("Membership : Regular");
+
+        jLabel45.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        jLabel45.setText("Profile");
+
+        javax.swing.GroupLayout profileM1Layout = new javax.swing.GroupLayout(profileM1);
+        profileM1.setLayout(profileM1Layout);
+        profileM1Layout.setHorizontalGroup(
+            profileM1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, profileM1Layout.createSequentialGroup()
+                .addContainerGap(78, Short.MAX_VALUE)
+                .addGroup(profileM1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, profileM1Layout.createSequentialGroup()
+                        .addComponent(jLabel40)
+                        .addGap(77, 77, 77))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, profileM1Layout.createSequentialGroup()
+                        .addComponent(jLabel41)
+                        .addGap(90, 90, 90))))
+            .addGroup(profileM1Layout.createSequentialGroup()
+                .addGroup(profileM1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(profileM1Layout.createSequentialGroup()
+                        .addGap(27, 27, 27)
+                        .addGroup(profileM1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel43)
+                            .addComponent(jLabel42)
+                            .addComponent(jLabel44, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(profileM1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel45, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(140, Short.MAX_VALUE))
+        );
+        profileM1Layout.setVerticalGroup(
+            profileM1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(profileM1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel45)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                .addComponent(jLabel40, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel41)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel42)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel43)
+                .addGap(12, 12, 12)
+                .addComponent(jLabel44)
+                .addGap(14, 14, 14))
+        );
+
+        jLabel46.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        jLabel46.setText("Membership Details");
+
+        jLabel47.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel47.setText("Membership Type : Regular");
+
+        jLabel48.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel48.setText("Join Date : 01/01/2026");
+
+        jLabel49.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel49.setText("Status : ");
+
+        jLabel50.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel50.setForeground(new java.awt.Color(0, 204, 51));
+        jLabel50.setText("Active");
+
+        jLabel51.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel51.setText("Join Date : 01/01/2027");
+
+        javax.swing.GroupLayout memberDetails1Layout = new javax.swing.GroupLayout(memberDetails1);
+        memberDetails1.setLayout(memberDetails1Layout);
+        memberDetails1Layout.setHorizontalGroup(
+            memberDetails1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(memberDetails1Layout.createSequentialGroup()
+                .addGap(19, 19, 19)
+                .addGroup(memberDetails1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel46, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel47)
+                    .addComponent(jLabel48)
+                    .addGroup(memberDetails1Layout.createSequentialGroup()
+                        .addComponent(jLabel49)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel50, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel51))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        memberDetails1Layout.setVerticalGroup(
+            memberDetails1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(memberDetails1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel46)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel47)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel48)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(memberDetails1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel49)
+                    .addComponent(jLabel50))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel51)
+                .addContainerGap(22, Short.MAX_VALUE))
+        );
+
+        jLabel52.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        jLabel52.setText("Attendance OverView");
+
+        attendanceText1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        attendanceText1.setText("Total Days Attended :");
+
+        attendanceValue1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        attendanceValue1.setText("13 ");
+
+        checkedText1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        checkedText1.setText("Last Checked -In :");
+
+        checkedValue1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        checkedValue1.setText("01/12/2026");
+
+        attendance1.setBackground(new java.awt.Color(170, 175, 175));
+        attendance1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        attendance1.setText("Mark Today's Attendance");
+        attendance1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                attendance1ActionPerformed(evt);
+            }
+        });
+
+        Revert1.setBackground(new java.awt.Color(170, 175, 175));
+        Revert1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        Revert1.setText("Revert");
+        Revert1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Revert1ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout attendanceP1Layout = new javax.swing.GroupLayout(attendanceP1);
+        attendanceP1.setLayout(attendanceP1Layout);
+        attendanceP1Layout.setHorizontalGroup(
+            attendanceP1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(attendanceP1Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(attendanceP1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(attendanceP1Layout.createSequentialGroup()
+                        .addGroup(attendanceP1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel52)
+                            .addGroup(attendanceP1Layout.createSequentialGroup()
+                                .addComponent(attendanceText1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(attendanceValue1))
+                            .addGroup(attendanceP1Layout.createSequentialGroup()
+                                .addComponent(checkedText1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(checkedValue1, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(attendanceP1Layout.createSequentialGroup()
+                        .addComponent(attendance1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
+                        .addComponent(Revert1, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(29, 29, 29))))
+        );
+        attendanceP1Layout.setVerticalGroup(
+            attendanceP1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(attendanceP1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel52)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(attendanceP1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(attendanceValue1)
+                    .addComponent(attendanceText1))
+                .addGap(18, 18, 18)
+                .addGroup(attendanceP1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(checkedText1)
+                    .addComponent(checkedValue1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
+                .addGroup(attendanceP1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(attendance1)
+                    .addComponent(Revert1))
+                .addGap(25, 25, 25))
+        );
+
+        javax.swing.GroupLayout memberPage2Layout = new javax.swing.GroupLayout(memberPage2);
+        memberPage2.setLayout(memberPage2Layout);
+        memberPage2Layout.setHorizontalGroup(
+            memberPage2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(memberNav1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(memberPage2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(profileM1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(memberPage2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(memberDetails1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(attendanceP1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(31, 31, 31))
+        );
+        memberPage2Layout.setVerticalGroup(
+            memberPage2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(memberPage2Layout.createSequentialGroup()
+                .addComponent(memberNav1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(49, 49, 49)
+                .addGroup(memberPage2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(memberPage2Layout.createSequentialGroup()
+                        .addComponent(memberDetails1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(attendanceP1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(profileM1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
+
+        memberPage.setBackground(new java.awt.Color(163, 73, 5));
+        memberPage.setPreferredSize(new java.awt.Dimension(900, 670));
+
+        memberNav.setBackground(new java.awt.Color(170, 175, 175));
+
+        log.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/logo.png"))); // NOI18N
+
+        jLabel19.setFont(new java.awt.Font("Times New Roman", 1, 36)); // NOI18N
+        jLabel19.setText("GYM PRO");
+
+        jLabel23.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel23.setText("Welcome, Prashna Regmi");
+
+        memberLogout.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
+        memberLogout.setText("LOGOUT");
+        memberLogout.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 0, 0), 2));
+        memberLogout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                memberLogoutActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout memberNavLayout = new javax.swing.GroupLayout(memberNav);
+        memberNav.setLayout(memberNavLayout);
+        memberNavLayout.setHorizontalGroup(
+            memberNavLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(memberNavLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(log, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 155, Short.MAX_VALUE)
+                .addComponent(jLabel23)
+                .addGap(27, 27, 27)
+                .addComponent(memberLogout, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(31, 31, 31))
+        );
+        memberNavLayout.setVerticalGroup(
+            memberNavLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(memberNavLayout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addGroup(memberNavLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, memberNavLayout.createSequentialGroup()
+                        .addComponent(log, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, memberNavLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(memberNavLayout.createSequentialGroup()
+                            .addGroup(memberNavLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(memberLogout, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel23))
+                            .addContainerGap())
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, memberNavLayout.createSequentialGroup()
+                            .addComponent(jLabel19)
+                            .addGap(35, 35, 35)))))
+        );
+
+        jLabel25.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/prashna.jpg"))); // NOI18N
+        jLabel25.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204), 3));
+
+        jLabel26.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel26.setText("Prashna Regmi");
+
+        jLabel27.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel27.setText("Member ID : Mem001");
+
+        jLabel28.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel28.setText("Gender : Female");
+
+        jLabel29.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel29.setText("Membership : Premium");
+
+        jLabel31.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        jLabel31.setText("Profile");
+
+        javax.swing.GroupLayout profileMLayout = new javax.swing.GroupLayout(profileM);
+        profileM.setLayout(profileMLayout);
+        profileMLayout.setHorizontalGroup(
+            profileMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, profileMLayout.createSequentialGroup()
+                .addContainerGap(78, Short.MAX_VALUE)
+                .addGroup(profileMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, profileMLayout.createSequentialGroup()
+                        .addComponent(jLabel25)
+                        .addGap(77, 77, 77))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, profileMLayout.createSequentialGroup()
+                        .addComponent(jLabel26)
+                        .addGap(90, 90, 90))))
+            .addGroup(profileMLayout.createSequentialGroup()
+                .addGroup(profileMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(profileMLayout.createSequentialGroup()
+                        .addGap(27, 27, 27)
+                        .addGroup(profileMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel29)
+                            .addComponent(jLabel28)
+                            .addComponent(jLabel27)))
+                    .addGroup(profileMLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel31, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        profileMLayout.setVerticalGroup(
+            profileMLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(profileMLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel31)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                .addComponent(jLabel25, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel26)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel27)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel28)
+                .addGap(12, 12, 12)
+                .addComponent(jLabel29)
+                .addGap(14, 14, 14))
+        );
+
+        jLabel30.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        jLabel30.setText("Membership Details");
+
+        jLabel32.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel32.setText("Membership Type : Premium");
+
+        jLabel33.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel33.setText("Join Date : 01/01/2026");
+
+        jLabel34.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel34.setText("Status : ");
+
+        jLabel35.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel35.setForeground(new java.awt.Color(0, 204, 51));
+        jLabel35.setText("Active");
+
+        jLabel36.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel36.setText("Join Date : 01/01/2027");
+
+        javax.swing.GroupLayout memberDetailsLayout = new javax.swing.GroupLayout(memberDetails);
+        memberDetails.setLayout(memberDetailsLayout);
+        memberDetailsLayout.setHorizontalGroup(
+            memberDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(memberDetailsLayout.createSequentialGroup()
+                .addGap(19, 19, 19)
+                .addGroup(memberDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel30, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel32)
+                    .addComponent(jLabel33)
+                    .addGroup(memberDetailsLayout.createSequentialGroup()
+                        .addComponent(jLabel34)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel35, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel36))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        memberDetailsLayout.setVerticalGroup(
+            memberDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(memberDetailsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel30)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel32)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel33)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(memberDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel34)
+                    .addComponent(jLabel35))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel36)
+                .addContainerGap(22, Short.MAX_VALUE))
+        );
+
+        jLabel37.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        jLabel37.setText("Attendance OverView");
+
+        attendanceText.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        attendanceText.setText("Total Days Attended :");
+
+        attendanceValue.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        attendanceValue.setText("13 ");
+
+        checkedText.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        checkedText.setText("Last Checked -In :");
+
+        checkedValue.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        checkedValue.setText("01/13/2026");
+
+        attendance.setBackground(new java.awt.Color(170, 175, 175));
+        attendance.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        attendance.setText("Mark Today's Attendance");
+        attendance.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                attendanceActionPerformed(evt);
+            }
+        });
+
+        Revert.setBackground(new java.awt.Color(170, 175, 175));
+        Revert.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        Revert.setText("Revert");
+        Revert.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                RevertActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout attendancePLayout = new javax.swing.GroupLayout(attendanceP);
+        attendanceP.setLayout(attendancePLayout);
+        attendancePLayout.setHorizontalGroup(
+            attendancePLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(attendancePLayout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(attendancePLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel37)
+                    .addGroup(attendancePLayout.createSequentialGroup()
+                        .addComponent(attendanceText)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(attendanceValue))
+                    .addGroup(attendancePLayout.createSequentialGroup()
+                        .addComponent(checkedText)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(checkedValue, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(attendancePLayout.createSequentialGroup()
+                        .addComponent(attendance)
+                        .addGap(18, 18, 18)
+                        .addComponent(Revert, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(42, Short.MAX_VALUE))
+        );
+        attendancePLayout.setVerticalGroup(
+            attendancePLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(attendancePLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel37)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(attendancePLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(attendanceValue)
+                    .addComponent(attendanceText))
+                .addGap(18, 18, 18)
+                .addGroup(attendancePLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(checkedText)
+                    .addComponent(checkedValue))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
+                .addGroup(attendancePLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(attendance)
+                    .addComponent(Revert))
+                .addGap(24, 24, 24))
+        );
+
+        javax.swing.GroupLayout memberPageLayout = new javax.swing.GroupLayout(memberPage);
+        memberPage.setLayout(memberPageLayout);
+        memberPageLayout.setHorizontalGroup(
+            memberPageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(memberNav, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(memberPageLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(profileM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(memberPageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(memberDetails, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(attendanceP, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(31, 31, 31))
+        );
+        memberPageLayout.setVerticalGroup(
+            memberPageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(memberPageLayout.createSequentialGroup()
+                .addComponent(memberNav, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(49, 49, 49)
+                .addGroup(memberPageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(memberPageLayout.createSequentialGroup()
+                        .addComponent(memberDetails, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(attendanceP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(profileM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(930, 660));
         setMinimumSize(new java.awt.Dimension(930, 660));
-        setPreferredSize(new java.awt.Dimension(920, 660));
         setResizable(false);
 
-        ContactUs.setBackground(new java.awt.Color(163, 73, 5));
-        ContactUs.setPreferredSize(new java.awt.Dimension(929, 533));
+        main.setBackground(new java.awt.Color(163, 73, 5));
+        main.setPreferredSize(new java.awt.Dimension(920, 660));
 
-        jLabel38.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/contactUs.png"))); // NOI18N
-        jLabel38.setMinimumSize(new java.awt.Dimension(929, 533));
+        navbar.setBackground(new java.awt.Color(170, 175, 175));
 
-        javax.swing.GroupLayout ContactUsLayout = new javax.swing.GroupLayout(ContactUs);
-        ContactUs.setLayout(ContactUsLayout);
-        ContactUsLayout.setHorizontalGroup(
-            ContactUsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel38, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        ContactUsLayout.setVerticalGroup(
-            ContactUsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(ContactUsLayout.createSequentialGroup()
+        navlogo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/logo.png"))); // NOI18N
+
+        logout.setBackground(new java.awt.Color(163, 73, 5));
+        logout.setFont(new java.awt.Font("Segoe UI Semibold", 3, 18)); // NOI18N
+        logout.setForeground(new java.awt.Color(255, 255, 204));
+        logout.setText("LOG OUT");
+        logout.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 0, 0), 2, true));
+        logout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                logoutActionPerformed(evt);
+            }
+        });
+
+        title.setFont(new java.awt.Font("Segoe UI", 3, 24)); // NOI18N
+        title.setText("GYM PRO  ");
+
+        navhome.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        navhome.setText("HOME");
+        navhome.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                navhomeMouseClicked(evt);
+            }
+        });
+
+        navadmin.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        navadmin.setText("ADMIN");
+        navadmin.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                navadminMouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout navbarLayout = new javax.swing.GroupLayout(navbar);
+        navbar.setLayout(navbarLayout);
+        navbarLayout.setHorizontalGroup(
+            navbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(navbarLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel38, javax.swing.GroupLayout.PREFERRED_SIZE, 486, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(31, Short.MAX_VALUE))
+                .addComponent(navlogo, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(navhome, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(110, 110, 110)
+                .addComponent(title)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(navadmin, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(43, 43, 43)
+                .addComponent(logout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(40, 40, 40))
+        );
+        navbarLayout.setVerticalGroup(
+            navbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, navbarLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addGroup(navbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(navadmin, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(title, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(navhome, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(16, 16, 16))
+            .addGroup(navbarLayout.createSequentialGroup()
+                .addGroup(navbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(navlogo, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(navbarLayout.createSequentialGroup()
+                        .addGap(24, 24, 24)
+                        .addComponent(logout, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        body.setBackground(new java.awt.Color(163, 73, 5));
+
+        admin.setBackground(new java.awt.Color(163, 73, 5));
+
+        javax.swing.GroupLayout adminLayout = new javax.swing.GroupLayout(admin);
+        admin.setLayout(adminLayout);
+        adminLayout.setHorizontalGroup(
+            adminLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 875, Short.MAX_VALUE)
+        );
+        adminLayout.setVerticalGroup(
+            adminLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 587, Short.MAX_VALUE)
+        );
+
+        adminDashboard.setBackground(new java.awt.Color(163, 73, 5));
+
+        memberDatabase.setBackground(new java.awt.Color(163, 73, 5));
+        memberDatabase.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 2));
+        memberDatabase.setForeground(new java.awt.Color(255, 255, 255));
+        memberDatabase.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Member_ID", "Name", "Age", "Membership_Type", "Location", "Gender", "Attendance", "Checked-In"
+            }
+        ));
+        jScrollPane2.setViewportView(memberDatabase);
+
+        update.setBackground(new java.awt.Color(163, 73, 5));
+        update.setFont(new java.awt.Font("Arial Rounded MT Bold", 0, 24)); // NOI18N
+        update.setForeground(new java.awt.Color(255, 255, 255));
+        update.setText("Update Member");
+        update.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        update.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                updateActionPerformed(evt);
+            }
+        });
+
+        delete.setBackground(new java.awt.Color(163, 73, 5));
+        delete.setFont(new java.awt.Font("Arial Rounded MT Bold", 0, 24)); // NOI18N
+        delete.setForeground(new java.awt.Color(255, 255, 255));
+        delete.setText("Delete Member");
+        delete.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        delete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteActionPerformed(evt);
+            }
+        });
+
+        add.setBackground(new java.awt.Color(163, 73, 5));
+        add.setFont(new java.awt.Font("Arial Rounded MT Bold", 0, 24)); // NOI18N
+        add.setForeground(new java.awt.Color(255, 255, 255));
+        add.setText("Add Member");
+        add.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        add.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addActionPerformed(evt);
+            }
+        });
+
+        jLabel9.setFont(new java.awt.Font("Rockwell Extra Bold", 0, 14)); // NOI18N
+        jLabel9.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel9.setText("To add new members ,click the button below");
+
+        adminError.setForeground(new java.awt.Color(255, 255, 0));
+
+        confirmation.setForeground(new java.awt.Color(255, 255, 0));
+
+        addVerify.setForeground(new java.awt.Color(255, 255, 0));
+
+        searchTf.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                searchTfKeyReleased(evt);
+            }
+        });
+
+        Search.setBackground(new java.awt.Color(170, 175, 175));
+        Search.setText("Search");
+        Search.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SearchActionPerformed(evt);
+            }
+        });
+
+        sortCombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Ascending by ID", "Descending by ID", "Ascending by Name", "Descending by Name" }));
+
+        Sort.setBackground(new java.awt.Color(170, 175, 175));
+        Sort.setText("Sort");
+        Sort.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SortActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout adminDashboardLayout = new javax.swing.GroupLayout(adminDashboard);
+        adminDashboard.setLayout(adminDashboardLayout);
+        adminDashboardLayout.setHorizontalGroup(
+            adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(adminDashboardLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(adminDashboardLayout.createSequentialGroup()
+                        .addGroup(adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(adminDashboardLayout.createSequentialGroup()
+                                .addGap(0, 443, Short.MAX_VALUE)
+                                .addComponent(addVerify, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(196, 196, 196))
+                            .addComponent(jScrollPane2)
+                            .addGroup(adminDashboardLayout.createSequentialGroup()
+                                .addGroup(adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(adminDashboardLayout.createSequentialGroup()
+                                        .addGap(238, 264, Short.MAX_VALUE)
+                                        .addComponent(delete, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(50, 50, 50))
+                                    .addGroup(adminDashboardLayout.createSequentialGroup()
+                                        .addComponent(update, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                .addComponent(confirmation, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(11, 11, 11)))
+                        .addGap(18, 18, 18))
+                    .addGroup(adminDashboardLayout.createSequentialGroup()
+                        .addGap(9, 9, 9)
+                        .addComponent(Search)
+                        .addGap(28, 28, 28)
+                        .addComponent(searchTf, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(sortCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(28, 28, 28)
+                        .addComponent(Sort)
+                        .addGap(31, 31, 31))
+                    .addGroup(adminDashboardLayout.createSequentialGroup()
+                        .addComponent(history, javax.swing.GroupLayout.PREFERRED_SIZE, 576, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+            .addGroup(adminDashboardLayout.createSequentialGroup()
+                .addGap(22, 22, 22)
+                .addGroup(adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(add, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(adminError, javax.swing.GroupLayout.PREFERRED_SIZE, 464, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        adminDashboardLayout.setVerticalGroup(
+            adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(adminDashboardLayout.createSequentialGroup()
+                .addGroup(adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(adminDashboardLayout.createSequentialGroup()
+                        .addGap(7, 7, 7)
+                        .addGroup(adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, adminDashboardLayout.createSequentialGroup()
+                                .addGroup(adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(Search)
+                                    .addComponent(searchTf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(2, 2, 2))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, adminDashboardLayout.createSequentialGroup()
+                                .addGroup(adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(sortCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(Sort))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
+                        .addComponent(history, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addGroup(adminDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(update, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(delete, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, adminDashboardLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(confirmation, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(47, 47, 47)))
+                .addComponent(adminError, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(add, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
+                .addComponent(addVerify, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(33, 33, 33))
+        );
+
+        javax.swing.GroupLayout bodyLayout = new javax.swing.GroupLayout(body);
+        body.setLayout(bodyLayout);
+        bodyLayout.setHorizontalGroup(
+            bodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(bodyLayout.createSequentialGroup()
+                .addGap(22, 22, 22)
+                .addComponent(admin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(23, 23, 23))
+            .addGroup(bodyLayout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addComponent(adminDashboard, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        bodyLayout.setVerticalGroup(
+            bodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(bodyLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(adminDashboard, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(admin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(24, 24, 24))
+        );
+
+        javax.swing.GroupLayout mainLayout = new javax.swing.GroupLayout(main);
+        main.setLayout(mainLayout);
+        mainLayout.setHorizontalGroup(
+            mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(body, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(navbar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        mainLayout.setVerticalGroup(
+            mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mainLayout.createSequentialGroup()
+                .addGroup(mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(mainLayout.createSequentialGroup()
+                        .addGap(89, 89, 89)
+                        .addComponent(body, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(navbar, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(ContactUs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGap(0, 920, Short.MAX_VALUE)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(0, 0, Short.MAX_VALUE)
+                    .addComponent(main, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(ContactUs, javax.swing.GroupLayout.PREFERRED_SIZE, 476, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 184, Short.MAX_VALUE))
+            .addGap(0, 660, Short.MAX_VALUE)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(0, 0, Short.MAX_VALUE)
+                    .addComponent(main, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)))
         );
 
         pack();
@@ -1751,6 +2333,8 @@ public class GYM_PRO extends javax.swing.JFrame {
             String location = member.getLocation();
             String gender = member.getGender();
             String membership = member.getMembershipType();
+            String attendance = String.valueOf(member.getTotalAttendance());
+            String lastCheckIn = member.getLastCheckIn();
 
             // Clearing errors in the update page
             clearUpdateError();
@@ -1761,6 +2345,8 @@ public class GYM_PRO extends javax.swing.JFrame {
             namefieldUp.setText(name);
             agefieldUp.setText(age);
             locationfieldUp.setText(location);
+            attendanceFieldUp.setText(attendance);
+            checkInFieldUp.setText(lastCheckIn);
 
             // Setting the values for JComboBoxes
             genderboxUp.setSelectedItem(gender);
@@ -1799,24 +2385,56 @@ public class GYM_PRO extends javax.swing.JFrame {
 
             // admin login
             if (username.equals("admin") && password.equals("admin")) {
+                JOptionPane.showMessageDialog(this, "Login Successful for admin!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 loginnamefield.setText("");
                 passwordField.setText("");
                 changingMainPanels("MainPanel");
 
                 // user login
             } else if (username.equals("user") && password.equals("user")) {
+                JOptionPane.showMessageDialog(this, "Login Successful for user!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 loginnamefield.setText("");
                 passwordField.setText("");
                 changingMainPanels("UserPanel");// user panel
+
+            } else if (username.equals("prashna") && password.equals("prashna")) {
+                JOptionPane.showMessageDialog(this, "Login Successful for Prashna!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                // 1. Point to Prashna's data index 0
+                loggedInMember = logicController.getMemberList().get(0);
+
+                // 2. Load HER data into HER specific labels
+                if (loggedInMember != null) {
+                    attendanceValue.setText(String.valueOf(loggedInMember.getTotalAttendance()));
+                    checkedValue.setText(loggedInMember.getLastCheckIn());
+                }
+                loginnamefield.setText("");
+                passwordField.setText("");
+                changingMainPanels("MemberPagePanel");    // open member page
+
+            } else if (username.equals("deshan") && password.equals("deshan")) {
+                JOptionPane.showMessageDialog(this, "Login Successful for deshan!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                // ( Deshan is at index 1 in your list)
+                loggedInMember = logicController.getMemberList().get(1);
+
+                // 2. Set the labels for Deshan's specific page before opening it
+                if (loggedInMember != null) {
+                    attendanceValue1.setText(String.valueOf(loggedInMember.getTotalAttendance()));
+                    checkedValue1.setText(loggedInMember.getLastCheckIn());
+                }
+                loginnamefield.setText("");
+                passwordField.setText("");
+                changingMainPanels("MemberPage2Panel");    // open member page
             } else {
                 // username incorrect
-                if (!username.equals("admin") && !username.equals("user")) {
+                if (!username.equals("admin") && !username.equals("user") && !username.equals("prashna") && !username.equals("deshan")) {
                     nameError.setText("Username not found");
                 }
 
                 // password incorrect
                 if (username.equals("admin") && !password.equals("admin")
-                        || (username.equals("user") && !password.equals("user"))) {
+                        || (username.equals("user") && !password.equals("user"))
+                        || (username.equals("prashna") && !password.equals("prashna"))
+                        || (username.equals("deshan") && !password.equals("deshan"))) {
                     passwordError.setText("Password Incorrect");
                 }
             }
@@ -1867,6 +2485,8 @@ public class GYM_PRO extends javax.swing.JFrame {
             String location = locationfieldUp.getText();
             String membership = memberboxUp.getSelectedItem().toString();
             String gender = genderboxUp.getSelectedItem().toString();
+            String attendanceStr = attendanceFieldUp.getText();
+            String lastCheckIn = checkInFieldUp.getText();
 
             boolean empty = false;
             boolean valid = true;
@@ -1905,6 +2525,23 @@ public class GYM_PRO extends javax.swing.JFrame {
                     valid = false;
                 }
             }
+            // validating Attendance
+            int totalAttendance = 0;
+            if (attendanceStr == null || attendanceStr.trim().isEmpty()) {
+                updateAttendanceError.setText("Attendance required.");
+                empty = true;
+            } else {
+                try {
+                    totalAttendance = Integer.parseInt(attendanceStr);
+                    if (totalAttendance < 0) {
+                        updateAttendanceError.setText("Attendance cannot be negative.");
+                        valid = false;
+                    }
+                } catch (NumberFormatException ex) {
+                    updateAttendanceError.setText("Attendance must be a number.");
+                    valid = false;
+                }
+            }
 
             // if any fields are empty or invalid, stop the process
             if (empty || !valid) {
@@ -1925,7 +2562,9 @@ public class GYM_PRO extends javax.swing.JFrame {
                         && member.getAge() == Integer.parseInt(ageStr)
                         && member.getMembershipType().equals(membership)
                         && member.getLocation().equals(location)
-                        && member.getGender().equals(gender)) {
+                        && member.getGender().equals(gender)
+                        && member.getTotalAttendance() == Integer.parseInt(attendanceStr)
+                        && member.getLastCheckIn().equals(lastCheckIn)) {
                     updateErorr.setText("Please alter something to update.");
                 } else {
                     // ask for confirmation
@@ -1933,7 +2572,9 @@ public class GYM_PRO extends javax.swing.JFrame {
                             "Update member: " + id + "?"
                             + "\nName: " + name + "\nAge: " + ageStr
                             + "\nMembership: " + membership + "\nLocation: " + location
-                            + "\nGender: " + gender,
+                            + "\nGender: " + gender
+                            + "\nTotal Attendance: " + attendanceStr
+                            + "\nLast Check-In: " + lastCheckIn,
                             "CONFIRMATION", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
                     if (response == JOptionPane.YES_OPTION) {
@@ -1943,6 +2584,8 @@ public class GYM_PRO extends javax.swing.JFrame {
                         member.setMembershipType(membership);
                         member.setLocation(location);
                         member.setGender(gender);
+                        member.setTotalAttendance(totalAttendance);
+                        member.setLastCheckIn(lastCheckIn);
 
                         // Updating the table row based on your specific column order
                         memberDatabase.setValueAt(id, tableIndex, 0);         // ID
@@ -1951,6 +2594,8 @@ public class GYM_PRO extends javax.swing.JFrame {
                         memberDatabase.setValueAt(membership, tableIndex, 3); // Membership
                         memberDatabase.setValueAt(location, tableIndex, 4);   // Location
                         memberDatabase.setValueAt(gender, tableIndex, 5);     // Gender
+                        memberDatabase.setValueAt(totalAttendance, tableIndex, 6); //  Attendance
+                        memberDatabase.setValueAt(lastCheckIn, tableIndex, 7);    //  Last Check-In
 
                         memberDatabase.revalidate();
 
@@ -1967,6 +2612,8 @@ public class GYM_PRO extends javax.swing.JFrame {
         } catch (Exception ex) {
             // Handle unexpected errors
         }
+
+
     }//GEN-LAST:event_addbtnUpActionPerformed
 
     private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteActionPerformed
@@ -2027,6 +2674,8 @@ public class GYM_PRO extends javax.swing.JFrame {
             String ageStr = ageField.getText();
             String membership = memberBox.getSelectedItem().toString();
             String location = locationField.getText();
+            String attendanceStr = attendanceField.getText();
+            String lastCheckIn = checkInField.getText();
 
             // Extracting from JComboBox using your field names
             String gender = genderBox.getSelectedItem().toString();
@@ -2075,6 +2724,32 @@ public class GYM_PRO extends javax.swing.JFrame {
                 addLocationError.setText("Location required.");
                 empty = true;
             }
+            int totalAttendance = 0;
+
+            // validating attendance
+            if (attendanceStr == null || attendanceStr.trim().isEmpty()) {
+                addAttendanceError.setText("Attendance required.");
+                empty = true;
+            } else {
+                try {
+                    totalAttendance = Integer.parseInt(attendanceStr);
+                    if (totalAttendance < 0) {
+                        addAttendanceError.setText("Attendance cannot be negative.");
+                        valid = false;
+                    }
+                } catch (NumberFormatException ex) {
+                    addAttendanceError.setText("Attendance must be a number.");
+                    valid = false;
+                }
+            }
+            // validating last check-in date (MM/DD/YYYY)
+            if (lastCheckIn == null || lastCheckIn.trim().isEmpty()) {
+                addCheckInError.setText("Check-in date required.");
+                empty = true;
+            } else if (!lastCheckIn.matches("^(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])/\\d{4}$")) {
+                addCheckInError.setText("Invalid format. Use MM/DD/YYYY.");
+                valid = false;
+            }
 
             // if any fields are empty or validation error, stop the process
             if (empty || !valid) {
@@ -2099,7 +2774,9 @@ public class GYM_PRO extends javax.swing.JFrame {
                         Integer.parseInt(ageStr),
                         membership,
                         location,
-                        gender);
+                        gender,
+                        totalAttendance,
+                        lastCheckIn);
 
                 // registering or adding the object to the table and array list
                 registerNewMember(newMember);
@@ -2111,6 +2788,8 @@ public class GYM_PRO extends javax.swing.JFrame {
                 locationField.setText("");
                 genderBox.setSelectedIndex(0);
                 memberBox.setSelectedIndex(0);
+                attendanceField.setText("");
+                checkInField.setText("");
 
                 clearAddError();
 
@@ -2123,8 +2802,13 @@ public class GYM_PRO extends javax.swing.JFrame {
                 addError.setText("This member ID already exists.");
             }
         } catch (Exception ex) {
-            // General catch for unexpected errors
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Error: " + ex.getMessage(),
+                    "ERROR",
+                    JOptionPane.ERROR_MESSAGE);
         }
+
     }//GEN-LAST:event_addBtnActionPerformed
 
     private void CancelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CancelBtnActionPerformed
@@ -2156,7 +2840,21 @@ public class GYM_PRO extends javax.swing.JFrame {
     }//GEN-LAST:event_CancelBtnUpActionPerformed
 
     private void memberLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_memberLogoutActionPerformed
-        // TODO add your handling code here:
+        // ask for confirmation
+        int response = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to log out?",
+                "CONFIRMATION",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+// if logout confirmed
+        if (response == JOptionPane.YES_OPTION) {
+
+            // switch back to login panel
+            changingMainPanels("LoginPanel");
+        }
     }//GEN-LAST:event_memberLogoutActionPerformed
 
     private void userNavHMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_userNavHMouseClicked
@@ -2175,6 +2873,126 @@ public class GYM_PRO extends javax.swing.JFrame {
     private void userNavMMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_userNavMMouseClicked
         changingMainPanels("LoginPanel");
     }//GEN-LAST:event_userNavMMouseClicked
+
+    private void memberLogout1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_memberLogout1ActionPerformed
+        // ask for confirmation
+        int response = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to log out?",
+                "CONFIRMATION",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+// if logout confirmed
+        if (response == JOptionPane.YES_OPTION) {
+
+            // switch back to login panel
+            changingMainPanels("LoginPanel");
+        }
+    }//GEN-LAST:event_memberLogout1ActionPerformed
+
+    private void attendanceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attendanceActionPerformed
+        markAttendanceLogic();
+    }//GEN-LAST:event_attendanceActionPerformed
+
+    private void attendance1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attendance1ActionPerformed
+        markAttendanceLogic();
+    }//GEN-LAST:event_attendance1ActionPerformed
+
+    private void Revert1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Revert1ActionPerformed
+        revertAttendanceLogic();
+    }//GEN-LAST:event_Revert1ActionPerformed
+
+    private void RevertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RevertActionPerformed
+        revertAttendanceLogic();
+    }//GEN-LAST:event_RevertActionPerformed
+
+    private void SearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SearchActionPerformed
+        String query = searchTf.getText().trim();
+
+// Empty → show all
+        if (query.isEmpty()) {
+            refreshTable(logicController.getMemberList());
+            history.setText("Recent: " + logicController.getHistoryString());
+            return;
+        }
+
+// Try binary search first (exact match by ID)
+        Member exactMatch = logicController.binarySearchByMemberId(query);
+
+        if (exactMatch != null) {
+            refreshTable(List.of(exactMatch));
+        } else {
+            // Then linear search by name (partial match)
+            List<Member> results = logicController.linearSearchByName(query);
+            if (!results.isEmpty()) {
+                refreshTable(results);
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "No member found matching: " + query,
+                        "Search Result",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
+
+// Record search in history
+        logicController.recordSearch(query);
+        history.setText("Recent: " + logicController.getHistoryString());
+
+    }//GEN-LAST:event_SearchActionPerformed
+
+    private void SortActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SortActionPerformed
+        String sortOrder = (String) sortCombo.getSelectedItem();
+
+// Only sort if the user actually selected one of the 4 valid options
+        if (sortOrder != null) {
+            switch (sortOrder.trim()) { // trim to remove extra spaces
+                case "Ascending by ID":
+                    logicController.manualSortByMemberId(true);
+                    break;
+                case "Descending by ID":
+                    logicController.manualSortByMemberId(false);
+                    break;
+                case "Ascending by Name":
+                    logicController.manualSortByName(true);
+                    break;
+                case "Descending by Name":
+                    logicController.manualSortByName(false);
+                    break;
+                // No default! If default value is selected, do nothing
+            }
+        }
+
+// Refresh your table/list
+        initializeData();
+
+    }//GEN-LAST:event_SortActionPerformed
+
+    private void checkInFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkInFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_checkInFieldActionPerformed
+
+    private void attendanceFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attendanceFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_attendanceFieldActionPerformed
+
+    private void attendanceFieldUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attendanceFieldUpActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_attendanceFieldUpActionPerformed
+
+    private void checkInFieldUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkInFieldUpActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_checkInFieldUpActionPerformed
+
+    private void searchTfKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_searchTfKeyReleased
+        String query = searchTf.getText().trim();
+
+        // ONLY restore original table when search field is cleared
+        if (query.isEmpty()) {
+            initializeData();
+        }
+    }//GEN-LAST:event_searchTfKeyReleased
 
     /**
      * @param args the command line arguments
@@ -2202,18 +3020,26 @@ public class GYM_PRO extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel Attendance;
     private javax.swing.JButton CancelBtn;
     private javax.swing.JButton CancelBtnUp;
+    private javax.swing.JLabel CheckIn;
     private javax.swing.JPanel ContactUs;
     private javax.swing.JPanel Login;
     private javax.swing.JPanel Premium;
     private javax.swing.JPanel Regular;
+    private javax.swing.JButton Revert;
+    private javax.swing.JButton Revert1;
+    private javax.swing.JButton Search;
+    private javax.swing.JButton Sort;
     private javax.swing.JPanel Sub_login;
     private javax.swing.JPanel UserHome;
     private javax.swing.JLabel UserHomepic;
     private javax.swing.JButton add;
     private javax.swing.JLabel addAgeError;
+    private javax.swing.JLabel addAttendanceError;
     private javax.swing.JButton addBtn;
+    private javax.swing.JLabel addCheckInError;
     private javax.swing.JLabel addError;
     private javax.swing.JLabel addIdError;
     private javax.swing.JLabel addLocationError;
@@ -2229,13 +3055,25 @@ public class GYM_PRO extends javax.swing.JFrame {
     private javax.swing.JLabel ageUp;
     private javax.swing.JTextField agefieldUp;
     private javax.swing.JButton attendance;
+    private javax.swing.JButton attendance1;
+    private javax.swing.JTextField attendanceField;
+    private javax.swing.JTextField attendanceFieldUp;
     private javax.swing.JPanel attendanceP;
+    private javax.swing.JPanel attendanceP1;
     private javax.swing.JLabel attendanceText;
+    private javax.swing.JLabel attendanceText1;
+    private javax.swing.JLabel attendanceUp;
     private javax.swing.JLabel attendanceValue;
+    private javax.swing.JLabel attendanceValue1;
     private javax.swing.JLabel bg_pic;
     private javax.swing.JPanel body;
+    private javax.swing.JTextField checkInField;
+    private javax.swing.JTextField checkInFieldUp;
+    private javax.swing.JLabel checkInUp;
     private javax.swing.JLabel checkedText;
+    private javax.swing.JLabel checkedText1;
     private javax.swing.JLabel checkedValue;
+    private javax.swing.JLabel checkedValue1;
     private javax.swing.JButton clearBtn;
     private javax.swing.JLabel confirmation;
     private javax.swing.JButton delete;
@@ -2244,6 +3082,7 @@ public class GYM_PRO extends javax.swing.JFrame {
     private javax.swing.JLabel genderUp;
     private javax.swing.JComboBox<String> genderboxUp;
     private javax.swing.JPanel gymPackage;
+    private javax.swing.JLabel history;
     private javax.swing.JPanel home;
     private javax.swing.JLabel homepic;
     private javax.swing.JLabel id;
@@ -2268,6 +3107,7 @@ public class GYM_PRO extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel23;
+    private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel27;
@@ -2283,8 +3123,22 @@ public class GYM_PRO extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel36;
     private javax.swing.JLabel jLabel37;
     private javax.swing.JLabel jLabel38;
+    private javax.swing.JLabel jLabel39;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel40;
+    private javax.swing.JLabel jLabel41;
+    private javax.swing.JLabel jLabel42;
+    private javax.swing.JLabel jLabel43;
+    private javax.swing.JLabel jLabel44;
+    private javax.swing.JLabel jLabel45;
+    private javax.swing.JLabel jLabel46;
+    private javax.swing.JLabel jLabel47;
+    private javax.swing.JLabel jLabel48;
+    private javax.swing.JLabel jLabel49;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel50;
+    private javax.swing.JLabel jLabel51;
+    private javax.swing.JLabel jLabel52;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
@@ -2295,6 +3149,7 @@ public class GYM_PRO extends javax.swing.JFrame {
     private javax.swing.JLabel locationUp;
     private javax.swing.JTextField locationfieldUp;
     private javax.swing.JLabel log;
+    private javax.swing.JLabel log1;
     private javax.swing.JButton login;
     private javax.swing.JLabel loginname;
     private javax.swing.JTextField loginnamefield;
@@ -2304,9 +3159,13 @@ public class GYM_PRO extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> memberBox;
     private javax.swing.JTable memberDatabase;
     private javax.swing.JPanel memberDetails;
+    private javax.swing.JPanel memberDetails1;
     private javax.swing.JButton memberLogout;
+    private javax.swing.JButton memberLogout1;
     private javax.swing.JPanel memberNav;
+    private javax.swing.JPanel memberNav1;
     private javax.swing.JPanel memberPage;
+    private javax.swing.JPanel memberPage2;
     private javax.swing.JComboBox<String> memberboxUp;
     private javax.swing.JLabel membership;
     private javax.swing.JLabel membershipUp;
@@ -2324,10 +3183,15 @@ public class GYM_PRO extends javax.swing.JFrame {
     private javax.swing.JPasswordField passwordField;
     private javax.swing.JPanel premiumPlan;
     private javax.swing.JPanel profileM;
+    private javax.swing.JPanel profileM1;
     private javax.swing.JPanel regularPlan;
+    private javax.swing.JTextField searchTf;
+    private javax.swing.JComboBox<String> sortCombo;
     private javax.swing.JLabel title;
     private javax.swing.JButton update;
     private javax.swing.JLabel updateAgeErorr;
+    private javax.swing.JLabel updateAttendanceError;
+    private javax.swing.JLabel updateCheckInError;
     private javax.swing.JLabel updateErorr;
     private javax.swing.JLabel updateIdErorr;
     private javax.swing.JLabel updateLocationErorr;
