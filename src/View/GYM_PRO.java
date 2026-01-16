@@ -10,6 +10,9 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import Controller.Logic;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 /**
  *
@@ -246,22 +249,22 @@ public class GYM_PRO extends javax.swing.JFrame {
 
     private void markAttendanceLogic() {
         if (loggedInMember != null) {
-            // 1. Calculate New Data
+            // Calculate New Data
             int newTotal = loggedInMember.getTotalAttendance() + 1;
             String today = java.time.format.DateTimeFormatter.ofPattern("MM/dd/yyyy")
                     .format(java.time.LocalDate.now());
 
-            // 2. Prevent duplicate marking
+            // Prevent duplicate marking
             if (today.equals(loggedInMember.getLastCheckIn())) {
                 JOptionPane.showMessageDialog(this, "Attendance already marked for today!", "Notice", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
-            // 3. Update the Data Object
+            //Update the Data Object
             loggedInMember.setTotalAttendance(newTotal);
             loggedInMember.setLastCheckIn(today);
 
-            // 4. Update the UI based on which member is logged in
+            // Update the UI based on which member is logged in
             if (loggedInMember.getName().equalsIgnoreCase("Prashna Regmi")) {
                 attendanceValue.setText(String.valueOf(newTotal));
                 checkedValue.setText(today);
@@ -281,19 +284,19 @@ public class GYM_PRO extends javax.swing.JFrame {
         if (loggedInMember != null) {
             int currentTotal = loggedInMember.getTotalAttendance();
 
-            // 1. Check if there is actually anything to revert
+            // Check if there is actually anything to revert
             if (currentTotal <= 0) {
                 JOptionPane.showMessageDialog(this, "Attendance is already at 0.", "Notice", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
-            // 2. Ask for Confirmation (Safety First!)
+            // Ask for Confirmation (Safety First!)
             int confirm = JOptionPane.showConfirmDialog(this,
                     "Are you sure you want to remove today's attendance mark?",
                     "Confirm Revert", JOptionPane.YES_NO_OPTION);
 
             if (confirm == JOptionPane.YES_OPTION) {
-                // 3. Update the Data Object
+                // Update the Data Object
                 int newTotal = currentTotal - 1;
                 loggedInMember.setTotalAttendance(newTotal);
 
@@ -327,76 +330,11 @@ public class GYM_PRO extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        addMembers = new javax.swing.JPanel();
-        CancelBtn = new javax.swing.JButton();
-        age = new javax.swing.JLabel();
-        membership = new javax.swing.JLabel();
-        CheckIn = new javax.swing.JLabel();
-        name = new javax.swing.JLabel();
-        nameField = new javax.swing.JTextField();
-        ageField = new javax.swing.JTextField();
-        idField = new javax.swing.JTextField();
-        clearBtn = new javax.swing.JButton();
-        addBtn = new javax.swing.JButton();
-        locationField = new javax.swing.JTextField();
-        gender = new javax.swing.JLabel();
-        id = new javax.swing.JLabel();
-        genderBox = new javax.swing.JComboBox<>();
-        memberBox = new javax.swing.JComboBox<>();
-        addIdError = new javax.swing.JLabel();
-        addNameError = new javax.swing.JLabel();
-        addLocationError = new javax.swing.JLabel();
-        addAgeError = new javax.swing.JLabel();
-        addError = new javax.swing.JLabel();
-        location = new javax.swing.JLabel();
-        Attendance = new javax.swing.JLabel();
-        checkInField = new javax.swing.JTextField();
-        attendanceField = new javax.swing.JTextField();
-        addAttendanceError = new javax.swing.JLabel();
-        addCheckInError = new javax.swing.JLabel();
         home = new javax.swing.JPanel();
         intro = new javax.swing.JLabel();
         homepic = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        updateMembers = new javax.swing.JPanel();
-        CancelBtnUp = new javax.swing.JButton();
-        ageUp = new javax.swing.JLabel();
-        membershipUp = new javax.swing.JLabel();
-        idUp = new javax.swing.JLabel();
-        nameUp = new javax.swing.JLabel();
-        namefieldUp = new javax.swing.JTextField();
-        agefieldUp = new javax.swing.JTextField();
-        idfieldUp = new javax.swing.JTextField();
-        addbtnUp = new javax.swing.JButton();
-        locationfieldUp = new javax.swing.JTextField();
-        locationUp = new javax.swing.JLabel();
-        genderUp = new javax.swing.JLabel();
-        genderboxUp = new javax.swing.JComboBox<>();
-        updateIdErorr = new javax.swing.JLabel();
-        updateLocationErorr = new javax.swing.JLabel();
-        updateNameErorr = new javax.swing.JLabel();
-        updateAgeErorr = new javax.swing.JLabel();
-        memberboxUp = new javax.swing.JComboBox<>();
-        updateErorr = new javax.swing.JLabel();
-        attendanceUp = new javax.swing.JLabel();
-        attendanceFieldUp = new javax.swing.JTextField();
-        checkInUp = new javax.swing.JLabel();
-        checkInFieldUp = new javax.swing.JTextField();
-        updateAttendanceError = new javax.swing.JLabel();
-        updateCheckInError = new javax.swing.JLabel();
-        userPanel = new javax.swing.JPanel();
-        userNav = new javax.swing.JPanel();
-        userLogo = new javax.swing.JLabel();
-        userNavH = new javax.swing.JLabel();
-        userNavG = new javax.swing.JLabel();
-        userNavC = new javax.swing.JLabel();
-        userNavM = new javax.swing.JLabel();
-        userBody = new javax.swing.JPanel();
-        UserHome = new javax.swing.JPanel();
-        UserHomepic = new javax.swing.JLabel();
-        intro1 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
         ContactUs = new javax.swing.JPanel();
         jLabel38 = new javax.swing.JLabel();
         gymPackage = new javax.swing.JPanel();
@@ -513,194 +451,71 @@ public class GYM_PRO extends javax.swing.JFrame {
         loginError = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         logo = new javax.swing.JLabel();
-
-        addMembers.setBackground(new java.awt.Color(163, 73, 5));
-        addMembers.setPreferredSize(new java.awt.Dimension(882, 501));
-        addMembers.setLayout(null);
-
-        CancelBtn.setBackground(new java.awt.Color(163, 73, 5));
-        CancelBtn.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        CancelBtn.setForeground(new java.awt.Color(255, 255, 204));
-        CancelBtn.setText("Cancel");
-        CancelBtn.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 0, 0), 2, true));
-        CancelBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                CancelBtnActionPerformed(evt);
-            }
-        });
-        addMembers.add(CancelBtn);
-        CancelBtn.setBounds(16, 14, 102, 40);
-
-        age.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        age.setForeground(new java.awt.Color(255, 255, 255));
-        age.setText("Age");
-        addMembers.add(age);
-        age.setBounds(250, 140, 144, 30);
-
-        membership.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        membership.setForeground(new java.awt.Color(255, 255, 255));
-        membership.setText("MembershipType");
-        addMembers.add(membership);
-        membership.setBounds(490, 150, 203, 30);
-
-        CheckIn.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        CheckIn.setForeground(new java.awt.Color(255, 255, 255));
-        CheckIn.setText("Check-In");
-        addMembers.add(CheckIn);
-        CheckIn.setBounds(490, 320, 144, 37);
-
-        name.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        name.setForeground(new java.awt.Color(255, 255, 255));
-        name.setText("Name");
-        addMembers.add(name);
-        name.setBounds(490, 50, 144, 37);
-
-        nameField.setBackground(new java.awt.Color(163, 73, 5));
-        nameField.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
-        nameField.setForeground(new java.awt.Color(255, 255, 255));
-        nameField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        addMembers.add(nameField);
-        nameField.setBounds(490, 90, 218, 43);
-
-        ageField.setBackground(new java.awt.Color(163, 73, 5));
-        ageField.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
-        ageField.setForeground(new java.awt.Color(255, 255, 255));
-        ageField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        addMembers.add(ageField);
-        ageField.setBounds(250, 180, 218, 43);
-
-        idField.setBackground(new java.awt.Color(163, 73, 5));
-        idField.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
-        idField.setForeground(new java.awt.Color(255, 255, 255));
-        idField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        addMembers.add(idField);
-        idField.setBounds(250, 90, 218, 43);
-
-        clearBtn.setBackground(new java.awt.Color(163, 73, 5));
-        clearBtn.setFont(new java.awt.Font("Arial Rounded MT Bold", 1, 24)); // NOI18N
-        clearBtn.setForeground(new java.awt.Color(255, 255, 204));
-        clearBtn.setText("CLEAR");
-        clearBtn.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 0, 0), 2, true));
-        clearBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                clearBtnActionPerformed(evt);
-            }
-        });
-        addMembers.add(clearBtn);
-        clearBtn.setBounds(250, 430, 220, 40);
-
-        addBtn.setBackground(new java.awt.Color(163, 73, 5));
-        addBtn.setFont(new java.awt.Font("Arial Rounded MT Bold", 1, 24)); // NOI18N
-        addBtn.setForeground(new java.awt.Color(255, 255, 255));
-        addBtn.setText("ADD");
-        addBtn.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        addBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addBtnActionPerformed(evt);
-            }
-        });
-        addMembers.add(addBtn);
-        addBtn.setBounds(490, 430, 220, 40);
-
-        locationField.setBackground(new java.awt.Color(163, 73, 5));
-        locationField.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
-        locationField.setForeground(new java.awt.Color(255, 255, 255));
-        locationField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        locationField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                locationFieldActionPerformed(evt);
-            }
-        });
-        addMembers.add(locationField);
-        locationField.setBounds(250, 270, 218, 43);
-
-        gender.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        gender.setForeground(new java.awt.Color(255, 255, 255));
-        gender.setText("Gender");
-        addMembers.add(gender);
-        gender.setBounds(490, 230, 144, 37);
-
-        id.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        id.setForeground(new java.awt.Color(255, 255, 255));
-        id.setText("ID");
-        addMembers.add(id);
-        id.setBounds(250, 50, 144, 37);
-
-        genderBox.setBackground(new java.awt.Color(163, 73, 5));
-        genderBox.setFont(new java.awt.Font("Arial Rounded MT Bold", 0, 24)); // NOI18N
-        genderBox.setForeground(new java.awt.Color(255, 255, 255));
-        genderBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Male", "Female", "Others" }));
-        genderBox.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        addMembers.add(genderBox);
-        genderBox.setBounds(490, 270, 220, 40);
-
-        memberBox.setBackground(new java.awt.Color(163, 73, 5));
-        memberBox.setFont(new java.awt.Font("Arial Rounded MT Bold", 1, 18)); // NOI18N
-        memberBox.setForeground(new java.awt.Color(255, 255, 255));
-        memberBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Regular", "Premium" }));
-        memberBox.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        addMembers.add(memberBox);
-        memberBox.setBounds(490, 180, 222, 40);
-
-        addIdError.setForeground(new java.awt.Color(255, 255, 51));
-        addMembers.add(addIdError);
-        addIdError.setBounds(270, 140, 210, 10);
-
-        addNameError.setForeground(new java.awt.Color(255, 255, 0));
-        addMembers.add(addNameError);
-        addNameError.setBounds(490, 140, 220, 10);
-
-        addLocationError.setForeground(new java.awt.Color(255, 255, 0));
-        addMembers.add(addLocationError);
-        addLocationError.setBounds(250, 320, 220, 10);
-
-        addAgeError.setForeground(new java.awt.Color(255, 255, 0));
-        addMembers.add(addAgeError);
-        addAgeError.setBounds(250, 230, 220, 10);
-
-        addError.setForeground(new java.awt.Color(255, 255, 0));
-        addMembers.add(addError);
-        addError.setBounds(500, 480, 220, 10);
-
-        location.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        location.setForeground(new java.awt.Color(255, 255, 255));
-        location.setText("Location");
-        addMembers.add(location);
-        location.setBounds(250, 230, 144, 37);
-
-        Attendance.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        Attendance.setForeground(new java.awt.Color(255, 255, 255));
-        Attendance.setText("Attendance");
-        addMembers.add(Attendance);
-        Attendance.setBounds(250, 320, 144, 37);
-
-        checkInField.setBackground(new java.awt.Color(163, 73, 5));
-        checkInField.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
-        checkInField.setForeground(new java.awt.Color(255, 255, 255));
-        checkInField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        checkInField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                checkInFieldActionPerformed(evt);
-            }
-        });
-        addMembers.add(checkInField);
-        checkInField.setBounds(490, 360, 218, 43);
-
-        attendanceField.setBackground(new java.awt.Color(163, 73, 5));
-        attendanceField.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
-        attendanceField.setForeground(new java.awt.Color(255, 255, 255));
-        attendanceField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        attendanceField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                attendanceFieldActionPerformed(evt);
-            }
-        });
-        addMembers.add(attendanceField);
-        attendanceField.setBounds(250, 360, 218, 43);
-        addMembers.add(addAttendanceError);
-        addAttendanceError.setBounds(250, 410, 220, 10);
-        addMembers.add(addCheckInError);
-        addCheckInError.setBounds(490, 410, 220, 10);
+        updateMembers = new javax.swing.JPanel();
+        CancelBtnUp = new javax.swing.JButton();
+        ageUp = new javax.swing.JLabel();
+        membershipUp = new javax.swing.JLabel();
+        idUp = new javax.swing.JLabel();
+        nameUp = new javax.swing.JLabel();
+        namefieldUp = new javax.swing.JTextField();
+        agefieldUp = new javax.swing.JTextField();
+        idfieldUp = new javax.swing.JTextField();
+        addbtnUp = new javax.swing.JButton();
+        locationfieldUp = new javax.swing.JTextField();
+        locationUp = new javax.swing.JLabel();
+        genderUp = new javax.swing.JLabel();
+        genderboxUp = new javax.swing.JComboBox<>();
+        updateIdErorr = new javax.swing.JLabel();
+        updateLocationErorr = new javax.swing.JLabel();
+        updateNameErorr = new javax.swing.JLabel();
+        updateAgeErorr = new javax.swing.JLabel();
+        memberboxUp = new javax.swing.JComboBox<>();
+        updateErorr = new javax.swing.JLabel();
+        attendanceUp = new javax.swing.JLabel();
+        attendanceFieldUp = new javax.swing.JTextField();
+        checkInUp = new javax.swing.JLabel();
+        checkInFieldUp = new javax.swing.JTextField();
+        updateAttendanceError = new javax.swing.JLabel();
+        updateCheckInError = new javax.swing.JLabel();
+        addMembers = new javax.swing.JPanel();
+        CancelBtn = new javax.swing.JButton();
+        age = new javax.swing.JLabel();
+        membership = new javax.swing.JLabel();
+        CheckIn = new javax.swing.JLabel();
+        name = new javax.swing.JLabel();
+        nameField = new javax.swing.JTextField();
+        ageField = new javax.swing.JTextField();
+        idField = new javax.swing.JTextField();
+        clearBtn = new javax.swing.JButton();
+        addBtn = new javax.swing.JButton();
+        locationField = new javax.swing.JTextField();
+        gender = new javax.swing.JLabel();
+        id = new javax.swing.JLabel();
+        genderBox = new javax.swing.JComboBox<>();
+        memberBox = new javax.swing.JComboBox<>();
+        addIdError = new javax.swing.JLabel();
+        addNameError = new javax.swing.JLabel();
+        addLocationError = new javax.swing.JLabel();
+        addAgeError = new javax.swing.JLabel();
+        addError = new javax.swing.JLabel();
+        location = new javax.swing.JLabel();
+        Attendance = new javax.swing.JLabel();
+        checkInField = new javax.swing.JTextField();
+        attendanceField = new javax.swing.JTextField();
+        addAttendanceError = new javax.swing.JLabel();
+        addCheckInError = new javax.swing.JLabel();
+        userPanel = new javax.swing.JPanel();
+        userNav = new javax.swing.JPanel();
+        userLogo = new javax.swing.JLabel();
+        userNavH = new javax.swing.JLabel();
+        userNavG = new javax.swing.JLabel();
+        userNavC = new javax.swing.JLabel();
+        userNavM = new javax.swing.JLabel();
+        userBody = new javax.swing.JPanel();
+        UserHome = new javax.swing.JPanel();
+        UserHomepic = new javax.swing.JLabel();
+        intro1 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
 
         home.setBackground(new java.awt.Color(163, 73, 5));
         home.setPreferredSize(new java.awt.Dimension(920, 660));
@@ -753,324 +568,6 @@ public class GYM_PRO extends javax.swing.JFrame {
                         .addGap(106, 106, 106)
                         .addComponent(homepic, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(193, Short.MAX_VALUE))
-        );
-
-        updateMembers.setBackground(new java.awt.Color(163, 73, 5));
-        updateMembers.setPreferredSize(new java.awt.Dimension(882, 501));
-        updateMembers.setLayout(null);
-
-        CancelBtnUp.setBackground(new java.awt.Color(163, 73, 5));
-        CancelBtnUp.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        CancelBtnUp.setForeground(new java.awt.Color(255, 255, 204));
-        CancelBtnUp.setText("Cancel");
-        CancelBtnUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 0, 0), 2, true));
-        CancelBtnUp.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                CancelBtnUpActionPerformed(evt);
-            }
-        });
-        updateMembers.add(CancelBtnUp);
-        CancelBtnUp.setBounds(16, 14, 102, 40);
-
-        ageUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        ageUp.setForeground(new java.awt.Color(255, 255, 255));
-        ageUp.setText("Age");
-        updateMembers.add(ageUp);
-        ageUp.setBounds(220, 150, 144, 37);
-
-        membershipUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        membershipUp.setForeground(new java.awt.Color(255, 255, 255));
-        membershipUp.setText("MembershipType");
-        updateMembers.add(membershipUp);
-        membershipUp.setBounds(460, 160, 203, 37);
-
-        idUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        idUp.setForeground(new java.awt.Color(255, 255, 255));
-        idUp.setText("ID");
-        updateMembers.add(idUp);
-        idUp.setBounds(220, 50, 144, 37);
-
-        nameUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        nameUp.setForeground(new java.awt.Color(255, 255, 255));
-        nameUp.setText("Name");
-        updateMembers.add(nameUp);
-        nameUp.setBounds(460, 50, 144, 37);
-
-        namefieldUp.setBackground(new java.awt.Color(163, 73, 5));
-        namefieldUp.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
-        namefieldUp.setForeground(new java.awt.Color(255, 255, 255));
-        namefieldUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        namefieldUp.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                namefieldUpActionPerformed(evt);
-            }
-        });
-        updateMembers.add(namefieldUp);
-        namefieldUp.setBounds(460, 100, 218, 43);
-
-        agefieldUp.setBackground(new java.awt.Color(163, 73, 5));
-        agefieldUp.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
-        agefieldUp.setForeground(new java.awt.Color(255, 255, 255));
-        agefieldUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        updateMembers.add(agefieldUp);
-        agefieldUp.setBounds(220, 190, 218, 43);
-
-        idfieldUp.setBackground(new java.awt.Color(163, 73, 5));
-        idfieldUp.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
-        idfieldUp.setForeground(new java.awt.Color(255, 255, 255));
-        idfieldUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        updateMembers.add(idfieldUp);
-        idfieldUp.setBounds(220, 100, 218, 43);
-
-        addbtnUp.setBackground(new java.awt.Color(163, 73, 5));
-        addbtnUp.setFont(new java.awt.Font("Arial Rounded MT Bold", 1, 24)); // NOI18N
-        addbtnUp.setForeground(new java.awt.Color(255, 255, 255));
-        addbtnUp.setText("Update");
-        addbtnUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        addbtnUp.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addbtnUpActionPerformed(evt);
-            }
-        });
-        updateMembers.add(addbtnUp);
-        addbtnUp.setBounds(460, 430, 220, 40);
-
-        locationfieldUp.setBackground(new java.awt.Color(163, 73, 5));
-        locationfieldUp.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
-        locationfieldUp.setForeground(new java.awt.Color(255, 255, 255));
-        locationfieldUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        updateMembers.add(locationfieldUp);
-        locationfieldUp.setBounds(220, 280, 218, 43);
-
-        locationUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        locationUp.setForeground(new java.awt.Color(255, 255, 255));
-        locationUp.setText("Location");
-        updateMembers.add(locationUp);
-        locationUp.setBounds(220, 240, 144, 37);
-
-        genderUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        genderUp.setForeground(new java.awt.Color(255, 255, 255));
-        genderUp.setText("Gender");
-        updateMembers.add(genderUp);
-        genderUp.setBounds(460, 240, 144, 37);
-
-        genderboxUp.setBackground(new java.awt.Color(163, 73, 5));
-        genderboxUp.setFont(new java.awt.Font("Arial Rounded MT Bold", 0, 24)); // NOI18N
-        genderboxUp.setForeground(new java.awt.Color(255, 255, 255));
-        genderboxUp.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Male", "Female", "Others" }));
-        genderboxUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        updateMembers.add(genderboxUp);
-        genderboxUp.setBounds(460, 280, 220, 40);
-
-        updateIdErorr.setForeground(new java.awt.Color(255, 255, 0));
-        updateMembers.add(updateIdErorr);
-        updateIdErorr.setBounds(230, 150, 210, 10);
-
-        updateLocationErorr.setForeground(new java.awt.Color(255, 255, 0));
-        updateMembers.add(updateLocationErorr);
-        updateLocationErorr.setBounds(220, 330, 210, 10);
-
-        updateNameErorr.setForeground(new java.awt.Color(255, 255, 0));
-        updateMembers.add(updateNameErorr);
-        updateNameErorr.setBounds(460, 150, 210, 10);
-
-        updateAgeErorr.setForeground(new java.awt.Color(255, 255, 0));
-        updateMembers.add(updateAgeErorr);
-        updateAgeErorr.setBounds(220, 240, 210, 10);
-
-        memberboxUp.setBackground(new java.awt.Color(163, 73, 5));
-        memberboxUp.setFont(new java.awt.Font("Arial Rounded MT Bold", 0, 18)); // NOI18N
-        memberboxUp.setForeground(new java.awt.Color(255, 255, 255));
-        memberboxUp.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Regular", "Premium" }));
-        memberboxUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        updateMembers.add(memberboxUp);
-        memberboxUp.setBounds(460, 200, 210, 40);
-
-        updateErorr.setForeground(new java.awt.Color(255, 255, 0));
-        updateMembers.add(updateErorr);
-        updateErorr.setBounds(470, 470, 210, 20);
-
-        attendanceUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        attendanceUp.setForeground(new java.awt.Color(255, 255, 255));
-        attendanceUp.setText("Attendance");
-        updateMembers.add(attendanceUp);
-        attendanceUp.setBounds(220, 330, 144, 37);
-
-        attendanceFieldUp.setBackground(new java.awt.Color(163, 73, 5));
-        attendanceFieldUp.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
-        attendanceFieldUp.setForeground(new java.awt.Color(255, 255, 255));
-        attendanceFieldUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        attendanceFieldUp.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                attendanceFieldUpActionPerformed(evt);
-            }
-        });
-        updateMembers.add(attendanceFieldUp);
-        attendanceFieldUp.setBounds(220, 370, 218, 43);
-
-        checkInUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        checkInUp.setForeground(new java.awt.Color(255, 255, 255));
-        checkInUp.setText("Check-In");
-        updateMembers.add(checkInUp);
-        checkInUp.setBounds(460, 320, 144, 37);
-
-        checkInFieldUp.setBackground(new java.awt.Color(163, 73, 5));
-        checkInFieldUp.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
-        checkInFieldUp.setForeground(new java.awt.Color(255, 255, 255));
-        checkInFieldUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
-        checkInFieldUp.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                checkInFieldUpActionPerformed(evt);
-            }
-        });
-        updateMembers.add(checkInFieldUp);
-        checkInFieldUp.setBounds(460, 370, 218, 43);
-        updateMembers.add(updateAttendanceError);
-        updateAttendanceError.setBounds(220, 420, 220, 10);
-        updateMembers.add(updateCheckInError);
-        updateCheckInError.setBounds(460, 420, 220, 10);
-
-        userPanel.setBackground(new java.awt.Color(163, 73, 5));
-        userPanel.setPreferredSize(new java.awt.Dimension(920, 660));
-
-        userNav.setBackground(new java.awt.Color(170, 175, 175));
-
-        userLogo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/logo.png"))); // NOI18N
-
-        userNavH.setFont(new java.awt.Font("Algerian", 1, 24)); // NOI18N
-        userNavH.setText("HOME");
-        userNavH.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                userNavHMouseClicked(evt);
-            }
-        });
-
-        userNavG.setFont(new java.awt.Font("Algerian", 1, 24)); // NOI18N
-        userNavG.setText("Gym package");
-        userNavG.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                userNavGMouseClicked(evt);
-            }
-        });
-
-        userNavC.setFont(new java.awt.Font("Algerian", 1, 24)); // NOI18N
-        userNavC.setText("Contact us");
-        userNavC.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                userNavCMouseClicked(evt);
-            }
-        });
-
-        userNavM.setFont(new java.awt.Font("Algerian", 1, 24)); // NOI18N
-        userNavM.setText("member login");
-        userNavM.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                userNavMMouseClicked(evt);
-            }
-        });
-
-        javax.swing.GroupLayout userNavLayout = new javax.swing.GroupLayout(userNav);
-        userNav.setLayout(userNavLayout);
-        userNavLayout.setHorizontalGroup(
-            userNavLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(userNavLayout.createSequentialGroup()
-                .addComponent(userLogo, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(userNavH, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(userNavG, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(33, 33, 33)
-                .addComponent(userNavC, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(36, 36, 36)
-                .addComponent(userNavM, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        userNavLayout.setVerticalGroup(
-            userNavLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(userLogo, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addGroup(userNavLayout.createSequentialGroup()
-                .addGap(60, 60, 60)
-                .addGroup(userNavLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(userNavG, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(userNavH, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(userNavC, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(userNavM, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
-        );
-
-        userBody.setBackground(new java.awt.Color(163, 73, 5));
-
-        UserHome.setBackground(new java.awt.Color(163, 73, 5));
-
-        UserHomepic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/user home.png"))); // NOI18N
-
-        intro1.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
-        intro1.setForeground(new java.awt.Color(255, 255, 255));
-        intro1.setText("INTRODUCTION");
-
-        jLabel5.setFont(new java.awt.Font("Arial Rounded MT Bold", 2, 18)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setText("<html>\nThis system is designed to simplify and automate the daily operations of a gym. It \nhelps manage members, track attendance, and handle administrative tasks efficiently. By\nproviding separate access for admins and users, the system ensures secure management, \naccurate records, and a smoother experience for both gym staff and members.\n</html>\n");
-
-        javax.swing.GroupLayout UserHomeLayout = new javax.swing.GroupLayout(UserHome);
-        UserHome.setLayout(UserHomeLayout);
-        UserHomeLayout.setHorizontalGroup(
-            UserHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(UserHomeLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(UserHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(UserHomeLayout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 395, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(UserHomeLayout.createSequentialGroup()
-                        .addComponent(intro1, javax.swing.GroupLayout.PREFERRED_SIZE, 306, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(UserHomepic)
-                .addGap(67, 67, 67))
-        );
-        UserHomeLayout.setVerticalGroup(
-            UserHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(UserHomeLayout.createSequentialGroup()
-                .addGroup(UserHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(UserHomeLayout.createSequentialGroup()
-                        .addGap(78, 78, 78)
-                        .addComponent(intro1)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(UserHomeLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(UserHomepic, javax.swing.GroupLayout.PREFERRED_SIZE, 503, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(0, 24, Short.MAX_VALUE))
-        );
-
-        javax.swing.GroupLayout userBodyLayout = new javax.swing.GroupLayout(userBody);
-        userBody.setLayout(userBodyLayout);
-        userBodyLayout.setHorizontalGroup(
-            userBodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(UserHome, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        userBodyLayout.setVerticalGroup(
-            userBodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(userBodyLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(UserHome, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        javax.swing.GroupLayout userPanelLayout = new javax.swing.GroupLayout(userPanel);
-        userPanel.setLayout(userPanelLayout);
-        userPanelLayout.setHorizontalGroup(
-            userPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(userNav, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(userBody, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        userPanelLayout.setVerticalGroup(
-            userPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(userPanelLayout.createSequentialGroup()
-                .addComponent(userNav, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(userBody, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(13, 13, 13))
         );
 
         ContactUs.setBackground(new java.awt.Color(163, 73, 5));
@@ -2164,11 +1661,6 @@ public class GYM_PRO extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setMaximumSize(new java.awt.Dimension(930, 660));
-        setMinimumSize(new java.awt.Dimension(930, 660));
-        setResizable(false);
-
         Login.setBackground(new java.awt.Color(163, 73, 5));
         Login.setMaximumSize(new java.awt.Dimension(900, 670));
         Login.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -2269,6 +1761,515 @@ public class GYM_PRO extends javax.swing.JFrame {
         logo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/logo.png"))); // NOI18N
         Login.add(logo, new org.netbeans.lib.awtextra.AbsoluteConstraints(-30, 10, 160, 100));
 
+        updateMembers.setBackground(new java.awt.Color(163, 73, 5));
+        updateMembers.setPreferredSize(new java.awt.Dimension(882, 501));
+        updateMembers.setLayout(null);
+
+        CancelBtnUp.setBackground(new java.awt.Color(163, 73, 5));
+        CancelBtnUp.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        CancelBtnUp.setForeground(new java.awt.Color(255, 255, 204));
+        CancelBtnUp.setText("Cancel");
+        CancelBtnUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 0, 0), 2, true));
+        CancelBtnUp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CancelBtnUpActionPerformed(evt);
+            }
+        });
+        updateMembers.add(CancelBtnUp);
+        CancelBtnUp.setBounds(16, 14, 102, 40);
+
+        ageUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        ageUp.setForeground(new java.awt.Color(255, 255, 255));
+        ageUp.setText("Age");
+        updateMembers.add(ageUp);
+        ageUp.setBounds(220, 150, 144, 37);
+
+        membershipUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        membershipUp.setForeground(new java.awt.Color(255, 255, 255));
+        membershipUp.setText("MembershipType");
+        updateMembers.add(membershipUp);
+        membershipUp.setBounds(460, 160, 203, 37);
+
+        idUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        idUp.setForeground(new java.awt.Color(255, 255, 255));
+        idUp.setText("ID");
+        updateMembers.add(idUp);
+        idUp.setBounds(220, 50, 144, 37);
+
+        nameUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        nameUp.setForeground(new java.awt.Color(255, 255, 255));
+        nameUp.setText("Name");
+        updateMembers.add(nameUp);
+        nameUp.setBounds(460, 50, 144, 37);
+
+        namefieldUp.setBackground(new java.awt.Color(163, 73, 5));
+        namefieldUp.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
+        namefieldUp.setForeground(new java.awt.Color(255, 255, 255));
+        namefieldUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        namefieldUp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                namefieldUpActionPerformed(evt);
+            }
+        });
+        updateMembers.add(namefieldUp);
+        namefieldUp.setBounds(460, 100, 218, 43);
+
+        agefieldUp.setBackground(new java.awt.Color(163, 73, 5));
+        agefieldUp.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
+        agefieldUp.setForeground(new java.awt.Color(255, 255, 255));
+        agefieldUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        updateMembers.add(agefieldUp);
+        agefieldUp.setBounds(220, 190, 218, 43);
+
+        idfieldUp.setBackground(new java.awt.Color(163, 73, 5));
+        idfieldUp.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
+        idfieldUp.setForeground(new java.awt.Color(255, 255, 255));
+        idfieldUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        updateMembers.add(idfieldUp);
+        idfieldUp.setBounds(220, 100, 218, 43);
+
+        addbtnUp.setBackground(new java.awt.Color(163, 73, 5));
+        addbtnUp.setFont(new java.awt.Font("Arial Rounded MT Bold", 1, 24)); // NOI18N
+        addbtnUp.setForeground(new java.awt.Color(255, 255, 255));
+        addbtnUp.setText("Update");
+        addbtnUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        addbtnUp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addbtnUpActionPerformed(evt);
+            }
+        });
+        updateMembers.add(addbtnUp);
+        addbtnUp.setBounds(460, 430, 220, 40);
+
+        locationfieldUp.setBackground(new java.awt.Color(163, 73, 5));
+        locationfieldUp.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
+        locationfieldUp.setForeground(new java.awt.Color(255, 255, 255));
+        locationfieldUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        updateMembers.add(locationfieldUp);
+        locationfieldUp.setBounds(220, 280, 218, 43);
+
+        locationUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        locationUp.setForeground(new java.awt.Color(255, 255, 255));
+        locationUp.setText("Location");
+        updateMembers.add(locationUp);
+        locationUp.setBounds(220, 240, 144, 37);
+
+        genderUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        genderUp.setForeground(new java.awt.Color(255, 255, 255));
+        genderUp.setText("Gender");
+        updateMembers.add(genderUp);
+        genderUp.setBounds(460, 240, 144, 37);
+
+        genderboxUp.setBackground(new java.awt.Color(163, 73, 5));
+        genderboxUp.setFont(new java.awt.Font("Arial Rounded MT Bold", 0, 24)); // NOI18N
+        genderboxUp.setForeground(new java.awt.Color(255, 255, 255));
+        genderboxUp.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Male", "Female", "Others" }));
+        genderboxUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        updateMembers.add(genderboxUp);
+        genderboxUp.setBounds(460, 280, 220, 40);
+
+        updateIdErorr.setForeground(new java.awt.Color(255, 255, 0));
+        updateMembers.add(updateIdErorr);
+        updateIdErorr.setBounds(230, 150, 210, 10);
+
+        updateLocationErorr.setForeground(new java.awt.Color(255, 255, 0));
+        updateMembers.add(updateLocationErorr);
+        updateLocationErorr.setBounds(220, 330, 210, 10);
+
+        updateNameErorr.setForeground(new java.awt.Color(255, 255, 0));
+        updateMembers.add(updateNameErorr);
+        updateNameErorr.setBounds(460, 150, 210, 10);
+
+        updateAgeErorr.setForeground(new java.awt.Color(255, 255, 0));
+        updateMembers.add(updateAgeErorr);
+        updateAgeErorr.setBounds(220, 240, 210, 10);
+
+        memberboxUp.setBackground(new java.awt.Color(163, 73, 5));
+        memberboxUp.setFont(new java.awt.Font("Arial Rounded MT Bold", 0, 18)); // NOI18N
+        memberboxUp.setForeground(new java.awt.Color(255, 255, 255));
+        memberboxUp.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Regular", "Premium" }));
+        memberboxUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        updateMembers.add(memberboxUp);
+        memberboxUp.setBounds(460, 200, 210, 40);
+
+        updateErorr.setForeground(new java.awt.Color(255, 255, 0));
+        updateMembers.add(updateErorr);
+        updateErorr.setBounds(470, 470, 210, 20);
+
+        attendanceUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        attendanceUp.setForeground(new java.awt.Color(255, 255, 255));
+        attendanceUp.setText("Attendance");
+        updateMembers.add(attendanceUp);
+        attendanceUp.setBounds(220, 330, 144, 37);
+
+        attendanceFieldUp.setBackground(new java.awt.Color(163, 73, 5));
+        attendanceFieldUp.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
+        attendanceFieldUp.setForeground(new java.awt.Color(255, 255, 255));
+        attendanceFieldUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        attendanceFieldUp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                attendanceFieldUpActionPerformed(evt);
+            }
+        });
+        updateMembers.add(attendanceFieldUp);
+        attendanceFieldUp.setBounds(220, 370, 218, 43);
+
+        checkInUp.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        checkInUp.setForeground(new java.awt.Color(255, 255, 255));
+        checkInUp.setText("Check-In");
+        updateMembers.add(checkInUp);
+        checkInUp.setBounds(460, 320, 144, 37);
+
+        checkInFieldUp.setBackground(new java.awt.Color(163, 73, 5));
+        checkInFieldUp.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
+        checkInFieldUp.setForeground(new java.awt.Color(255, 255, 255));
+        checkInFieldUp.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        checkInFieldUp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkInFieldUpActionPerformed(evt);
+            }
+        });
+        updateMembers.add(checkInFieldUp);
+        checkInFieldUp.setBounds(460, 370, 218, 43);
+        updateMembers.add(updateAttendanceError);
+        updateAttendanceError.setBounds(220, 420, 220, 10);
+        updateMembers.add(updateCheckInError);
+        updateCheckInError.setBounds(460, 410, 220, 20);
+
+        addMembers.setBackground(new java.awt.Color(163, 73, 5));
+        addMembers.setPreferredSize(new java.awt.Dimension(882, 501));
+        addMembers.setLayout(null);
+
+        CancelBtn.setBackground(new java.awt.Color(163, 73, 5));
+        CancelBtn.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        CancelBtn.setForeground(new java.awt.Color(255, 255, 204));
+        CancelBtn.setText("Cancel");
+        CancelBtn.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 0, 0), 2, true));
+        CancelBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CancelBtnActionPerformed(evt);
+            }
+        });
+        addMembers.add(CancelBtn);
+        CancelBtn.setBounds(16, 14, 102, 40);
+
+        age.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        age.setForeground(new java.awt.Color(255, 255, 255));
+        age.setText("Age");
+        addMembers.add(age);
+        age.setBounds(250, 140, 144, 30);
+
+        membership.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        membership.setForeground(new java.awt.Color(255, 255, 255));
+        membership.setText("MembershipType");
+        addMembers.add(membership);
+        membership.setBounds(490, 150, 203, 30);
+
+        CheckIn.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        CheckIn.setForeground(new java.awt.Color(255, 255, 255));
+        CheckIn.setText("Check-In");
+        addMembers.add(CheckIn);
+        CheckIn.setBounds(490, 320, 144, 37);
+
+        name.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        name.setForeground(new java.awt.Color(255, 255, 255));
+        name.setText("Name");
+        addMembers.add(name);
+        name.setBounds(490, 50, 144, 37);
+
+        nameField.setBackground(new java.awt.Color(163, 73, 5));
+        nameField.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
+        nameField.setForeground(new java.awt.Color(255, 255, 255));
+        nameField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        addMembers.add(nameField);
+        nameField.setBounds(490, 90, 218, 43);
+
+        ageField.setBackground(new java.awt.Color(163, 73, 5));
+        ageField.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
+        ageField.setForeground(new java.awt.Color(255, 255, 255));
+        ageField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        addMembers.add(ageField);
+        ageField.setBounds(250, 180, 218, 43);
+
+        idField.setBackground(new java.awt.Color(163, 73, 5));
+        idField.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
+        idField.setForeground(new java.awt.Color(255, 255, 255));
+        idField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        addMembers.add(idField);
+        idField.setBounds(250, 90, 218, 43);
+
+        clearBtn.setBackground(new java.awt.Color(163, 73, 5));
+        clearBtn.setFont(new java.awt.Font("Arial Rounded MT Bold", 1, 24)); // NOI18N
+        clearBtn.setForeground(new java.awt.Color(255, 255, 204));
+        clearBtn.setText("CLEAR");
+        clearBtn.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 0, 0), 2, true));
+        clearBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clearBtnActionPerformed(evt);
+            }
+        });
+        addMembers.add(clearBtn);
+        clearBtn.setBounds(250, 430, 220, 40);
+
+        addBtn.setBackground(new java.awt.Color(163, 73, 5));
+        addBtn.setFont(new java.awt.Font("Arial Rounded MT Bold", 1, 24)); // NOI18N
+        addBtn.setForeground(new java.awt.Color(255, 255, 255));
+        addBtn.setText("ADD");
+        addBtn.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        addBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addBtnActionPerformed(evt);
+            }
+        });
+        addMembers.add(addBtn);
+        addBtn.setBounds(490, 430, 220, 40);
+
+        locationField.setBackground(new java.awt.Color(163, 73, 5));
+        locationField.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
+        locationField.setForeground(new java.awt.Color(255, 255, 255));
+        locationField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        locationField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                locationFieldActionPerformed(evt);
+            }
+        });
+        addMembers.add(locationField);
+        locationField.setBounds(250, 270, 218, 43);
+
+        gender.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        gender.setForeground(new java.awt.Color(255, 255, 255));
+        gender.setText("Gender");
+        addMembers.add(gender);
+        gender.setBounds(490, 230, 144, 37);
+
+        id.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        id.setForeground(new java.awt.Color(255, 255, 255));
+        id.setText("ID");
+        addMembers.add(id);
+        id.setBounds(250, 50, 144, 37);
+
+        genderBox.setBackground(new java.awt.Color(163, 73, 5));
+        genderBox.setFont(new java.awt.Font("Arial Rounded MT Bold", 0, 24)); // NOI18N
+        genderBox.setForeground(new java.awt.Color(255, 255, 255));
+        genderBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Male", "Female", "Others" }));
+        genderBox.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        addMembers.add(genderBox);
+        genderBox.setBounds(490, 270, 220, 40);
+
+        memberBox.setBackground(new java.awt.Color(163, 73, 5));
+        memberBox.setFont(new java.awt.Font("Arial Rounded MT Bold", 1, 18)); // NOI18N
+        memberBox.setForeground(new java.awt.Color(255, 255, 255));
+        memberBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Regular", "Premium" }));
+        memberBox.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        addMembers.add(memberBox);
+        memberBox.setBounds(490, 180, 222, 40);
+
+        addIdError.setForeground(new java.awt.Color(255, 255, 51));
+        addMembers.add(addIdError);
+        addIdError.setBounds(270, 140, 210, 10);
+
+        addNameError.setForeground(new java.awt.Color(255, 255, 0));
+        addMembers.add(addNameError);
+        addNameError.setBounds(490, 140, 220, 10);
+
+        addLocationError.setForeground(new java.awt.Color(255, 255, 0));
+        addMembers.add(addLocationError);
+        addLocationError.setBounds(250, 320, 220, 10);
+
+        addAgeError.setForeground(new java.awt.Color(255, 255, 0));
+        addMembers.add(addAgeError);
+        addAgeError.setBounds(250, 230, 220, 10);
+
+        addError.setForeground(new java.awt.Color(255, 255, 0));
+        addMembers.add(addError);
+        addError.setBounds(500, 480, 220, 10);
+
+        location.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        location.setForeground(new java.awt.Color(255, 255, 255));
+        location.setText("Location");
+        addMembers.add(location);
+        location.setBounds(250, 230, 144, 37);
+
+        Attendance.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        Attendance.setForeground(new java.awt.Color(255, 255, 255));
+        Attendance.setText("Attendance");
+        addMembers.add(Attendance);
+        Attendance.setBounds(250, 320, 144, 37);
+
+        checkInField.setBackground(new java.awt.Color(163, 73, 5));
+        checkInField.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
+        checkInField.setForeground(new java.awt.Color(255, 255, 255));
+        checkInField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        checkInField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkInFieldActionPerformed(evt);
+            }
+        });
+        addMembers.add(checkInField);
+        checkInField.setBounds(490, 360, 218, 43);
+
+        attendanceField.setBackground(new java.awt.Color(163, 73, 5));
+        attendanceField.setFont(new java.awt.Font("Elephant", 0, 18)); // NOI18N
+        attendanceField.setForeground(new java.awt.Color(255, 255, 255));
+        attendanceField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        attendanceField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                attendanceFieldActionPerformed(evt);
+            }
+        });
+        addMembers.add(attendanceField);
+        attendanceField.setBounds(250, 360, 218, 43);
+        addMembers.add(addAttendanceError);
+        addAttendanceError.setBounds(250, 410, 220, 10);
+        addMembers.add(addCheckInError);
+        addCheckInError.setBounds(490, 410, 250, 10);
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMaximumSize(new java.awt.Dimension(930, 660));
+        setMinimumSize(new java.awt.Dimension(930, 660));
+        setResizable(false);
+
+        userPanel.setBackground(new java.awt.Color(163, 73, 5));
+        userPanel.setPreferredSize(new java.awt.Dimension(920, 660));
+
+        userNav.setBackground(new java.awt.Color(170, 175, 175));
+
+        userLogo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/logo.png"))); // NOI18N
+
+        userNavH.setFont(new java.awt.Font("Algerian", 1, 24)); // NOI18N
+        userNavH.setText("HOME");
+        userNavH.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                userNavHMouseClicked(evt);
+            }
+        });
+
+        userNavG.setFont(new java.awt.Font("Algerian", 1, 24)); // NOI18N
+        userNavG.setText("Gym package");
+        userNavG.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                userNavGMouseClicked(evt);
+            }
+        });
+
+        userNavC.setFont(new java.awt.Font("Algerian", 1, 24)); // NOI18N
+        userNavC.setText("Contact us");
+        userNavC.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                userNavCMouseClicked(evt);
+            }
+        });
+
+        userNavM.setFont(new java.awt.Font("Algerian", 1, 24)); // NOI18N
+        userNavM.setText("member login");
+        userNavM.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                userNavMMouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout userNavLayout = new javax.swing.GroupLayout(userNav);
+        userNav.setLayout(userNavLayout);
+        userNavLayout.setHorizontalGroup(
+            userNavLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(userNavLayout.createSequentialGroup()
+                .addComponent(userLogo, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(userNavH, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(userNavG, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(33, 33, 33)
+                .addComponent(userNavC, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(36, 36, 36)
+                .addComponent(userNavM, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        userNavLayout.setVerticalGroup(
+            userNavLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(userLogo, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(userNavLayout.createSequentialGroup()
+                .addGap(60, 60, 60)
+                .addGroup(userNavLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(userNavG, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(userNavH, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(userNavC, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(userNavM, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
+
+        userBody.setBackground(new java.awt.Color(163, 73, 5));
+
+        UserHome.setBackground(new java.awt.Color(163, 73, 5));
+
+        UserHomepic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Image/user home.png"))); // NOI18N
+
+        intro1.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
+        intro1.setForeground(new java.awt.Color(255, 255, 255));
+        intro1.setText("INTRODUCTION");
+
+        jLabel5.setFont(new java.awt.Font("Arial Rounded MT Bold", 2, 18)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel5.setText("<html>\nThis system is designed to simplify and automate the daily operations of a gym. It \nhelps manage members, track attendance, and handle administrative tasks efficiently. By\nproviding separate access for admins and users, the system ensures secure management, \naccurate records, and a smoother experience for both gym staff and members.\n</html>\n");
+
+        javax.swing.GroupLayout UserHomeLayout = new javax.swing.GroupLayout(UserHome);
+        UserHome.setLayout(UserHomeLayout);
+        UserHomeLayout.setHorizontalGroup(
+            UserHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(UserHomeLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(UserHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(UserHomeLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 395, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(intro1, javax.swing.GroupLayout.PREFERRED_SIZE, 306, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(UserHomepic)
+                .addGap(67, 67, 67))
+        );
+        UserHomeLayout.setVerticalGroup(
+            UserHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(UserHomeLayout.createSequentialGroup()
+                .addGroup(UserHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(UserHomeLayout.createSequentialGroup()
+                        .addGap(78, 78, 78)
+                        .addComponent(intro1)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(UserHomeLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(UserHomepic, javax.swing.GroupLayout.PREFERRED_SIZE, 503, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 24, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout userBodyLayout = new javax.swing.GroupLayout(userBody);
+        userBody.setLayout(userBodyLayout);
+        userBodyLayout.setHorizontalGroup(
+            userBodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(UserHome, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        userBodyLayout.setVerticalGroup(
+            userBodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(userBodyLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(UserHome, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout userPanelLayout = new javax.swing.GroupLayout(userPanel);
+        userPanel.setLayout(userPanelLayout);
+        userPanelLayout.setHorizontalGroup(
+            userPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(userNav, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(userBody, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        userPanelLayout.setVerticalGroup(
+            userPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(userPanelLayout.createSequentialGroup()
+                .addComponent(userNav, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(userBody, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(13, 13, 13))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -2277,7 +2278,7 @@ public class GYM_PRO extends javax.swing.JFrame {
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                     .addGap(0, 0, Short.MAX_VALUE)
-                    .addComponent(Login, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(userPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGap(0, 0, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
@@ -2286,7 +2287,7 @@ public class GYM_PRO extends javax.swing.JFrame {
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                     .addGap(0, 0, Short.MAX_VALUE)
-                    .addComponent(Login, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(userPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGap(0, 0, Short.MAX_VALUE)))
         );
 
@@ -2444,7 +2445,6 @@ public class GYM_PRO extends javax.swing.JFrame {
                 changingMainPanels("MemberPage2Panel");
                 return;
             }
-
             // If username did not match any account
             nameError.setText("Username not found");
         }
@@ -2549,6 +2549,26 @@ public class GYM_PRO extends javax.swing.JFrame {
                     }
                 } catch (NumberFormatException ex) {
                     updateAttendanceError.setText("Attendance must be a number.");
+                    valid = false;
+                }
+            }
+            // validating last check-in date (MM/DD/YYYY)
+            if (lastCheckIn == null || lastCheckIn.trim().isEmpty()) {
+                updateCheckInError.setText("Check-in date required.");
+                empty = true;
+            } else {
+                try {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+                    LocalDate date = LocalDate.parse(lastCheckIn, formatter);
+
+                    int year = date.getYear();
+                    if (year < 2000 || year > 2026) {
+                        updateCheckInError.setText("Year must be between 2000 and 2026.");
+                        valid = false;
+                    }
+
+                } catch (DateTimeParseException ex) {
+                    updateCheckInError.setText("Invalid date. Use real date in MM/DD/YYYY.");
                     valid = false;
                 }
             }
@@ -2752,9 +2772,21 @@ public class GYM_PRO extends javax.swing.JFrame {
             if (lastCheckIn == null || lastCheckIn.trim().isEmpty()) {
                 addCheckInError.setText("Check-in date required.");
                 empty = true;
-            } else if (!lastCheckIn.matches("^(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])/\\d{4}$")) {
-                addCheckInError.setText("Invalid format. Use MM/DD/YYYY.");
-                valid = false;
+            } else {
+                try {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+                    LocalDate date = LocalDate.parse(lastCheckIn, formatter);
+
+                    int year = date.getYear();
+                    if (year < 2000 || year > 2026) {
+                        addCheckInError.setText("Year must be between 2000 and 2026.");
+                        valid = false;
+                    }
+
+                } catch (DateTimeParseException ex) {
+                    addCheckInError.setText("Invalid date. Use real date in MM/DD/YYYY.");
+                    valid = false;
+                }
             }
 
             // if any fields are empty or validation error, stop the process

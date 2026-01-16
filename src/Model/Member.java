@@ -9,7 +9,7 @@ package Model;
  * @author pande
  */
 public class Member {
-
+    
     // Declaration of attributes of a instance of Member with private modifier
     private String memberId;
     private String name;
@@ -20,11 +20,9 @@ public class Member {
     private int totalAttendance;
     private String lastCheckIn;
     
-
     /**
      * This is a constructor for the class Member Initializes a new instance of
      * Member with specified details of the person
-     *
      * @param memberId the unique identifier of a member
      * @param name the full name of the member
      * @param age the age of the member
@@ -34,6 +32,7 @@ public class Member {
      * @param totalAttendance
      * @param lastCheckIn
      */
+    
     public Member(String memberId, String name, int age, String membershipType, String location, String gender,int totalAttendance, String lastCheckIn) {
         // Initializing the attributes
         this.memberId = memberId;
@@ -43,19 +42,19 @@ public class Member {
         this.gender = gender;
         this.membershipType = membershipType;
         this.totalAttendance = totalAttendance;
-        this.lastCheckIn = lastCheckIn;
-        
+        this.lastCheckIn = lastCheckIn;    
     }
-
+    
     /**
      * Retrieves the unique Id of the member
      *
      * @return the Id of the member
      */
+    
     public String getMemberId() {
         return memberId;
     }
-
+    
     /**
      * Assigns a new Id for a member
      *

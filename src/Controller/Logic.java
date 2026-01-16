@@ -56,11 +56,18 @@ public class Logic {
     public Queue<Member> getMemberQueue() {
         return memberQueue;
     }
+    private LinkedList<Member> recentlyAdded = new LinkedList<>();
 
 // Add new member both to list and queue
     public void addMember(Member m) {
     memberList.add(m);       // Add to ArrayList
     memberQueue.offer(m);    // Add to queue
+    
+    // Track recent additions
+    recentlyAdded.addFirst(m);
+    if (recentlyAdded.size() > 5) {
+        recentlyAdded.removeLast();
+    }
 }
     //for history search
     private Stack<String> history = new Stack<>();
